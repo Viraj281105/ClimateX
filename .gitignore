@@ -1,3 +1,18 @@
+# --- Custom Data (CRITICAL) ---
+# Ignore all common data file formats
+*.csv
+*.xlsx
+*.json
+*.sqlite
+*.db
+
+# Ignore our main data folder and its contents
+data/
+data/raw/
+data/processed/
+
+# --- Standard Python Template ---
+#
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
