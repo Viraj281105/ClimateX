@@ -56,7 +56,7 @@ If you don't see a version number, **[download and install Git](https://git-scm.
     * Go to the main page of this GitHub repository.
     * Click the green **`< > Code`** button.
     * Make sure the **HTTPS** tab is selected and **copy the URL**:
-        `https://github.com/YOUR_USERNAME/ClimateX.git`
+        `https://github.com/Viraj281105/ClimateX.git`
 
 2.  **Open Your Terminal**
     * Open your command-line tool (e.g., Terminal, Git Bash, Command Prompt).
