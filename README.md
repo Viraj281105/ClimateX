@@ -38,3 +38,38 @@ We are using a simplified 5-layer design to build a fast, modular, and deployabl
 | **Data Sources** | IMD, CPCB, Twitter API v2, MoEFCC Reports |
 | **Integration** | Cron jobs, REST APIs |
 | **Deployment** | Docker Compose (for easy demo deployment) |
+
+## 🚀 Get Started: Cloning the Repo
+
+Here are the step-by-step instructions to get a full local copy of this project.
+
+### Prerequisite: Install Git
+
+You must have Git installed on your machine. To check, open your terminal and type:
+`git --version`
+
+If you don't see a version number, **[download and install Git](https://git-scm.com/downloads)** first.
+
+### Step-by-Step Cloning
+
+1.  **Get the Repository URL**
+    * Go to the main page of this GitHub repository.
+    * Click the green **`< > Code`** button.
+    * Make sure the **HTTPS** tab is selected and **copy the URL**:
+        `https://github.com/YOUR_USERNAME/ClimateX.git`
+
+2.  **Open Your Terminal**
+    * Open your command-line tool (e.g., Terminal, Git Bash, Command Prompt).
+
+3.  **Navigate to Your Projects Folder**
+    * `cd` into the directory where you want this project to live.
+    * Example: `cd ~/Documents/Projects`
+
+4.  **Clone the Repository**
+    * Use the `git clone` command with the URL you copied. This will create a new `ClimateX` folder.
+    * `git clone https://github.com/YOUR_USERNAME/ClimateX.git`
+
+5.  **You're All Set!**
+    * Navigate into your new project folder:
+        `cd ClimateX`
+    * You are now ready to set up your environment and start coding.
