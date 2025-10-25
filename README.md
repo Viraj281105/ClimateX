@@ -1,42 +1,40 @@
 # 📈 ClimateX
 
-**A Causal Policy Engine to Measure the Real-World Impact of Global Climate Policies.**
+**A Real-Time Climate Intelligence & Policy Impact Platform, built for India.**
 
 *Project for the PCCOE IGC Hackathon (Demo Due: Nov 15th)*
 
 ---
 
-## 🎯 Project Goal
+## 🎯 Hackathon Goal: An "India-First" Intelligence Platform
 
-ClimateX is a data-driven platform that moves beyond simple dashboards. Instead of just showing *that* emissions went down (correlation), our engine uses causal inference to determine *why* (causation).
+Our goal is to move beyond generic global dashboards. ClimateX is a lean, modular platform optimized for the hackathon by focusing on **India-specific datasets** to deliver **causal insights** and **actionable policy recommendations**.
 
-We provide scientifically-backed, evidence-based answers on the real-world effectiveness of climate policy.
+We are building four key modules to demonstrate this:
 
-## 🚀 Hackathon MVP (The "Kyoto Plan")
+1.  **Real-Time India Dashboard:** A live geospatial dashboard showing rainfall, emissions, and crop data from Indian sources (IMD, CPCB).
+2.  **Causal Policy Engine:** A "DoWhy-lite" engine to answer counterfactual questions like, *"What would be the causal impact on Delhi's AQI if Policy X was adopted?"*
+3.  **Live Sentiment Analyzer:** A lightweight BERT model to track public sentiment on climate issues, state-by-state, using Twitter and news data.
+4.  **Policy Recommender:** A RAG-based pipeline to suggest relevant, proven policies for different Indian states based on their unique climate challenges.
 
-To prove our engine's capability within the 3-week hackathon, our MVP is designed to answer one of the most significant questions in climate policy:
+## 🏛️ System Architecture
 
-**"Did the Kyoto Protocol *actually cause* a measurable reduction in CO2 emissions for the countries that had binding targets?"**
+We are using a simplified 5-layer design to build a fast, modular, and deployable demo.
 
-To do this, we are building a causal model that:
-1.  **Analyzes a "Treatment Group":** The 43 Annex I countries with binding targets.
-2.  **Uses a "Control Group":** The Non-Annex I countries with no binding targets.
-3.  **Controls for Confounders:** We isolate the policy's effect from other factors like GDP growth, population, and industrialization.
+1.  **Presentation Layer (Frontend):** React.js, Mapbox, and Recharts for a fully interactive UI.
+2.  **Application Layer (Backend):** A high-speed FastAPI backend to serve data and control model execution.
+3.  **Intelligence Layer (AI/ML):** A set of containerized services for Causal Inference (DoWhy), NLP (HuggingFace BERT), and Policy Recommendation (RAG).
+4.  **Data Layer (India-Specific):** A dedicated data store using PostgreSQL and MongoDB.
+5.  **Integration Layer (ETL):** Simple cron jobs and REST APIs (falling back from Airflow) to fetch data from Indian portals.
 
-## 🔧 Tech Stack
+## 🔧 Tech Stack Summary
 
-* **Python**
-* **Pandas:** For all data cleaning, merging, and transformation.
-* **DoWhy:** The core causal inference library for modeling.
-* **FastAPI:** To serve the final causal model as a public API.
-* **Jupyter:** For iterative analysis and data exploration.
-
-## 📊 Data Sources
-
-Our engine is built by merging three distinct data types into a single `master_dataset`:
-
-1.  **Outcome Data (The "Effect"):** Global pollutant emissions (CO2, PM2.5, etc.) from the **EDGAR database**.
-2.  **Confounder Data (The "Other Factors"):** Economic and demographic data (GDP, Population, Industry %) from the **World Bank Open Data (WDI)**.
-3.  **Policy Data (The "Cause"):** The official Annex I / Non-Annex I country lists and the 2005 intervention date from the **UNFCCC**.
-
-## 📂 Repository Structure
+| Layer | Technologies (Hackathon-Ready) |
+| :--- | :--- |
+| **Frontend** | React.js, TailwindCSS, Mapbox, Recharts |
+| **Backend** | FastAPI, Redis, JWT |
+| **ML/NLP** | DoWhy, HuggingFace (BERT/RoBERTa), Scikit-learn |
+| **Data Storage** | PostgreSQL (Structured data), MongoDB (Tweets, docs) |
+| **Data Sources** | IMD, CPCB, Twitter API v2, MoEFCC Reports |
+| **Integration** | Cron jobs, REST APIs |
+| **Deployment** | Docker Compose (for easy demo deployment) |
