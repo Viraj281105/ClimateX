@@ -67,7 +67,7 @@ If you don't see a version number, **[download and install Git](https://git-scm.
 
 4.  **Clone the Repository**
     * Use the `git clone` command with the URL you copied. This will create a new `ClimateX` folder.
-    * `git clone https://github.com/YOUR_USERNAME/ClimateX.git`
+    * `git clone https://github.com/Viraj281105/ClimateX.git`
 
 5.  **You're All Set!**
     * Navigate into your new project folder:
