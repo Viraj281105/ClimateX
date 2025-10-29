@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from dowhy import CausalModel
 import logging
 import warnings
@@ -12,7 +13,7 @@ def run_causal_analysis(df, treatment_col, outcome_cols, common_causes_list):
     Runs a causal analysis for a given treatment on multiple outcomes.
     
     Args:
-        df (pd.DataFrame): The pre-cleaned DataFrame.
+        df (pd.DataFrame): The DataFrame containing all data.
         treatment_col (str): The name of the binary treatment column.
         outcome_cols (list): A list of outcome column names (pollutants).
         common_causes_list (list): A list of common cause column names (confounders).
@@ -30,14 +31,29 @@ def run_causal_analysis(df, treatment_col, outcome_cols, common_causes_list):
         p_value_placebo = None
 
         try:
-            # Check for zero variance in outcome
-            if df[outcome].nunique(dropna=False) <= 1:
+            # --- START: CRITICAL SUBSETTING ---
+            # Create a list of *only* the columns needed for this specific model.
+            # This prevents dowhy from treating other outcomes as confounders.
+            relevant_cols = [treatment_col, outcome] + common_causes_list
+            
+            # Ensure all required columns are present in the main df
+            missing_cols = [col for col in relevant_cols if col not in df.columns]
+            if missing_cols:
+                print(f"    ⚠️ SKIPPED: Missing required columns: {missing_cols}")
+                continue
+                
+            # Create the subsetted DataFrame
+            df_subset = df[relevant_cols].copy()
+            # --- END: CRITICAL SUBSETTING ---
+
+            # Check for zero variance in outcome (on the subset)
+            if df_subset[outcome].nunique(dropna=False) <= 1:
                 print(f"    ⚠️ SKIPPED: '{outcome}' has zero or only one unique value.")
                 continue
 
             # 1. Define Model
             model = CausalModel(
-                data=df,
+                data=df_subset,  # <-- Use the subsetted DataFrame
                 treatment=treatment_col,
                 outcome=outcome,
                 common_causes=common_causes_list
@@ -54,29 +70,40 @@ def run_causal_analysis(df, treatment_col, outcome_cols, common_causes_list):
             )
             ate_value = estimate.value
             
-            # Get P-Value for ATE
+            # 4. Get P-Value for ATE (Robust extraction)
             sig_test = estimate.test_stat_significance()
-            if sig_test and 'p_value' in sig_test and len(sig_test['p_value']) > 0:
-                pval_candidate = sig_test['p_value'][0]
-                if pd.notna(pval_candidate): 
-                    p_value_ate = float(pval_candidate)
             
-            # 4. Refute (Placebo)
+            if sig_test and 'p_value' in sig_test:
+                pval_candidate = sig_test['p_value']
+                
+                if isinstance(pval_candidate, (list, pd.Series, np.ndarray)) and len(pval_candidate) > 0:
+                    pval_candidate = pval_candidate[0]
+                
+                if pd.notna(pval_candidate):
+                    p_value_ate = float(pval_candidate)
+                    
+            # 5. Refute (Placebo)
             refute_placebo = model.refute_estimate(
                 identified_estimand, estimate,
                 method_name="placebo_treatment_refuter",
-                placebo_type="permute", num_simulations=50 # Use fewer for speed
+                placebo_type="permute", num_simulations=50
             )
+            
             if refute_placebo and hasattr(refute_placebo, 'refutation_result'):
                 ref_result = refute_placebo.refutation_result
+                
                 if isinstance(ref_result, dict) and 'p_value' in ref_result:
                     pval_candidate = ref_result['p_value']
+                    
+                    if isinstance(pval_candidate, (list, pd.Series, np.ndarray)) and len(pval_candidate) > 0:
+                        pval_candidate = pval_candidate[0]
+                        
                     if pd.notna(pval_candidate): 
                         p_value_placebo = float(pval_candidate)
                         
             # Store results
             results.append({
-                'policy': treatment_col,
+                'policy': treatment_col, # This will be overwritten by the main script
                 'pollutant': outcome,
                 'ate': ate_value,
                 'p_value_ate': p_value_ate,

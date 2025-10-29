@@ -77,13 +77,11 @@ def get_policy_features(policy_content):
 # --- 4. Main Processing Loop ---
 print(f"Starting to process {len(df)} policies...")
 
-# !!! --- START WITH A TEST RUN --- !!!
-# Process only the first 10 rows to make sure it works.
-# After this test is successful, you can remove '.head(10)'
-# and run again to process all 603 (this will be fast!)
+# !!! --- RUNNING FOR REAL --- !!!
+# We are now processing all 603 policies.
 
-df_to_process = df.head(10) 
-# df_to_process = df # <-- Uncomment this line to run all 603
+# df_to_process = df.head(10) # <-- Comment out the test line
+df_to_process = df # <-- Uncomment this line
 
 results = []
 
