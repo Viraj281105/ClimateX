@@ -5,30 +5,32 @@ import ollama
 import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from pathlib import Path  # <-- Import Pathlib
+from pathlib import Path
+from typing import List, Dict
 
-# --- 1. Setup: Load Model and Define Paths ---
+# --- 1. Setup: Load COMBINED Model (V3) ---
 
-# Use pathlib for a robust path to the project root
-# This file is in .../backend/app/api/v1/endpoints
-# We need to go up 5 levels to get to the 'ClimateX' root
 try:
-    FILE_DIR = Path(__file__).parent  # This is the .../endpoints directory
-    # 0=v1, 1=api, 2=app, 3=backend, 4=ClimateX
-    ROOT_DIR = FILE_DIR.parents[4]
-    MODEL_PATH = ROOT_DIR / "model_artifacts" / "robust_simulator_pipeline.joblib"
+    FILE_DIR = Path(__file__).parent
+    ROOT_DIR = FILE_DIR.parents[4] # 0=v1, 1=api, 2=app, 3=backend, 4=ClimateX
     
-    # Ensure the path is correct
+    # --- UPDATED ---
+    # Loading the V3 COMBINED model (from Script 11)
+    MODEL_PATH = ROOT_DIR / "model_artifacts" / "robust_simulator_pipeline_v3.joblib"
+    
     if not MODEL_PATH.exists():
         raise FileNotFoundError(f"Model not found at calculated path: {MODEL_PATH}")
 
-    # Load the model and client at startup
     model_pipeline = joblib.load(MODEL_PATH)
+    
     ollama_client = ollama.Client()
-    # Test connection
+    EMBEDDING_MODEL = 'nomic-embed-text'
+    
     ollama_client.list()
-    print(f"✅ Model loaded from: {MODEL_PATH}")
-    print("✅ Ollama client connected successfully.")
+    print(f"✅ V3 COMBINED Model loaded from: {MODEL_PATH}")
+    print(f"✅ Ollama client connected successfully (using '{EMBEDDING_MODEL}' and 'mistral').")
+
+    NUM_EMBEDDING_FEATURES = 768
 
 except Exception as e:
     print(f"❌ CRITICAL STARTUP ERROR: {e}")
@@ -41,123 +43,143 @@ router = APIRouter()
 
 class PolicySimulationRequest(BaseModel):
     policy_text: str
-    pollutant: str  # e.g., "EDGAR_CO2"
-    policy_year: int  # e.g., 2025
+    pollutant: str
+    policy_year: int
 
 class PolicySimulationResponse(BaseModel):
-    policy_type: str
-    action_type: str
     predicted_class: str
-    confidence_scores: dict
+    confidence_scores: Dict[str, float]
+    # We'll also return the classified features for debugging
+    policy_type_debug: str
+    action_type_debug: str
 
-# --- 3. Helper Function: Featurize Text with LLM ---
+# --- 3. Helper Functions (Two of them now) ---
 
-# --- 3. Helper Function: Featurize Text with LLM ---
-
-def get_policy_features(policy_content: str):
+def get_policy_features_simple(policy_content: str) -> Dict[str, str]:
     """
-    Uses the local Ollama model to classify policy text.
-    THIS VERSION IS ROBUST: It validates and cleans the LLM output.
+    Uses the 'mistral' LLM to get the *simple features* (policy_type, action_type).
+    This version is robust and cleans the output.
     """
     if not ollama_client:
-        raise HTTPException(status_code=503, detail="Ollama client is not available.")
+        raise HTTPException(status_code=503, detail="Ollama client (mistral) not available.")
         
     prompt = f"""
-    You are an expert policy analyst. Read the following policy text and classify it.
-    
-    Your response MUST be a valid JSON object with two keys:
-    1. "policy_type": (e.g., 'RenewableEnergy', 'EnergyEfficiency', 'AirQualityStandard', 'Forestry', 'WaterManagement', 'Transport', 'Industrial', 'Framework', 'Agriculture', 'Other')
-    2. "action_type": (e.g., 'Regulation', 'Standard', 'Investment', 'R&D', 'TaxIncentive', 'General', 'Other') <-- YOU MUST CHOOSE ONLY THE *ONE* BEST CATEGORY.
-
-    Policy Text:
-    "{policy_content[:2000]}" 
+    You are an expert policy analyst. Classify the text.
+    Your response MUST be a valid JSON object with "policy_type" and "action_type".
+    1. "policy_type": (e.g., 'RenewableEnergy', 'EnergyEfficiency', 'Transport', 'Industrial', 'Framework', 'Other')
+    2. "action_type": (e.g., 'Regulation', 'Standard', 'Investment', 'R&D', 'TaxIncentive', 'General', 'Other') <-- MUST CHOOSE ONLY ONE.
+    Policy Text: "{policy_content[:2000]}" 
     """
     try:
         response = ollama_client.chat(
-            model='mistral', # Assumes 'mistral' model
+            model='mistral',
             messages=[{'role': 'user', 'content': prompt}],
             format='json'
         )
         features = json.loads(response['message']['content'])
         
         if 'policy_type' not in features or 'action_type' not in features:
-            raise ValueError("LLM did not return the required keys.")
+            raise ValueError("LLM (mistral) did not return required keys.")
             
-        # --- ROBUSTNESS FIX ---
-        # The LLM sometimes returns "Investment, TaxIncentive".
-        # We must clean this before sending it to the model.
-        
-        # 1. Get the raw action_type (it might be a list or a string)
+        # --- Robustness cleanup ---
         raw_action = features.get('action_type', 'Other')
-        
         if isinstance(raw_action, list):
-            # If it's a list, take the first item
             clean_action = raw_action[0] if raw_action else 'Other'
         elif isinstance(raw_action, str):
-            # If it's a string, split by comma and take the first part
             clean_action = raw_action.split(',')[0].strip()
         else:
             clean_action = 'Other'
             
-        # 2. Update the features dictionary with the clean, single value
         features['action_type'] = clean_action
-        
-        # --- END OF FIX ---
-            
         return features
         
     except Exception as e:
-        print(f"❌ LLM Featurization Error: {e}")
-        raise HTTPException(status_code=500, detail=f"LLM featurization failed: {e}")
+        print(f"❌ LLM Simple Feature Error: {e}")
+        raise HTTPException(status_code=500, detail=f"LLM (mistral) featurization failed: {e}")
+
+def get_policy_embedding(policy_content: str) -> List[float]:
+    """
+    Uses the 'nomic-embed-text' LLM to get the text *embedding*.
+    """
+    if not ollama_client:
+        raise HTTPException(status_code=503, detail="Ollama client (nomic) not available.")
     
-# --- 4. Define the API Endpoint ---
+    if pd.isna(policy_content) or not policy_content.strip():
+        raise HTTPException(status_code=400, detail="Policy text cannot be empty.")
+    try:
+        response = ollama_client.embeddings(
+            model=EMBEDDING_MODEL,
+            prompt=policy_content
+        )
+        embedding = response.get('embedding')
+        if not embedding or len(embedding) != NUM_EMBEDDING_FEATURES:
+            raise ValueError(f"Embedding length mismatch. Expected {NUM_EMBEDDING_FEATURES}, Got {len(embedding)}")
+        return embedding
+    except Exception as e:
+        print(f"❌ LLM Embedding Error: {e}")
+        raise HTTPException(status_code=500, detail=f"LLM (nomic) embedding failed: {e}")
+    
+# --- 4. Define the API Endpoint (COMBINED Logic) ---
 
 @router.post("/simulate", response_model=PolicySimulationResponse)
 async def simulate_policy_impact(request: PolicySimulationRequest):
     """
-    Simulates the impact of a new, user-defined policy.
-    1. Featurizes the policy text using a local LLM.
-    2. Predicts the impact class using the robust classification model.
+    Simulates the impact using the V3 COMBINED model.
+    1. Gets simple features (policy_type) from LLM.
+    2. Gets text embedding from LLM.
+    3. Predicts impact.
     """
     if not model_pipeline:
-        raise HTTPException(status_code=503, detail="Model is not loaded. Check server logs.")
+        raise HTTPException(status_code=503, detail="Model V3 is not loaded.")
 
-    # Step 1: Featurize the policy text
     try:
-        features = get_policy_features(request.policy_text)
-        policy_type = features.get('policy_type')
-        action_type = features.get('action_type')
+        # Step 1: Get simple features
+        simple_features = get_policy_features_simple(request.policy_text)
+        
+        # Step 2: Get embedding
+        embedding = get_policy_embedding(request.policy_text)
     except HTTPException as e:
-        # Pass the HTTPException straight through
         raise e
 
-    # Step 2: Create a DataFrame for the model
-    input_data = pd.DataFrame({
+    # Step 3: Create the DataFrame for the model (must match Script 11)
+    
+    # Dict for embedding features
+    embedding_features_dict = {f'embed_{i}': val for i, val in enumerate(embedding)}
+    
+    # Combined input record
+    input_data_dict = {
         'pollutant': [request.pollutant],
-        'policy_type': [policy_type],
-        'action_type': [action_type],
-        'policy_year': [request.policy_year]
-    })
-
-    # Step 3: Get predictions and probabilities
+        'policy_type': [simple_features['policy_type']],
+        'action_type': [simple_features['action_type']],
+        'policy_year': [request.policy_year],
+        **embedding_features_dict
+    }
+    
+    input_data = pd.DataFrame.from_dict(input_data_dict)
+    
+    # Ensure column order (from Script 11)
     try:
-        # Get the predicted class (e.g., "Good Impact")
+        cat_features = ['pollutant', 'policy_type', 'action_type']
+        num_features = ['policy_year'] + [f'embed_{i}' for i in range(NUM_EMBEDDING_FEATURES)]
+        
+        input_data = input_data[cat_features + num_features]
+    except KeyError as e:
+        raise HTTPException(status_code=500, detail=f"Feature mismatch error: {e}")
+
+    # Step 4: Get prediction
+    try:
         predicted_class = model_pipeline.predict(input_data)[0]
-        
-        # Get the list of probabilities (e.g., [0.14, 0.81, 0.05])
         probabilities = model_pipeline.predict_proba(input_data)[0]
-        
-        # Match probabilities to their class names
         class_labels = model_pipeline.classes_
         confidence_scores = {label: prob for label, prob in zip(class_labels, probabilities)}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Model prediction failed: {e}")
 
-    # Step 4: Return the result
+    # Step 5: Return the result
     return PolicySimulationResponse(
-        policy_type=policy_type,
-        action_type=action_type,
         predicted_class=predicted_class,
-        confidence_scores=confidence_scores
+        confidence_scores=confidence_scores,
+        policy_type_debug=simple_features['policy_type'],
+        action_type_debug=simple_features['action_type']
     )

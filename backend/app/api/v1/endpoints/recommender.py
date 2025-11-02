@@ -1,68 +1,107 @@
 import os
 import joblib
 import pandas as pd
-import itertools
+import ollama
+import json
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
-# --- 1. Setup: Load Model and Define Paths ---
+# --- 1. Setup: Load COMBINED Model (V3) ---
 try:
-    # Use pathlib for a robust path to the project root
-    FILE_DIR = Path(__file__).parent  # This is the .../endpoints directory
-    ROOT_DIR = FILE_DIR.parents[4]    # 0=v1, 1=api, 2=app, 3=backend, 4=ClimateX
-    MODEL_PATH = ROOT_DIR / "model_artifacts" / "robust_simulator_pipeline.joblib"
+    FILE_DIR = Path(__file__).parent
+    ROOT_DIR = FILE_DIR.parents[4]
+    
+    # --- UPDATED ---
+    MODEL_PATH = ROOT_DIR / "model_artifacts" / "robust_simulator_pipeline_v3.joblib"
+    CANDIDATES_PATH = ROOT_DIR / "data" / "processed" / "recommendation_candidates.csv"
     
     if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"Model not found at calculated path: {MODEL_PATH}")
+        raise FileNotFoundError(f"Model not found at: {MODEL_PATH}")
+    if not CANDIDATES_PATH.exists():
+        raise FileNotFoundError(f"Candidates file not found at: {CANDIDATES_PATH}")
 
     model_pipeline = joblib.load(MODEL_PATH)
-    print(f"✅ Recommender loaded model from: {MODEL_PATH}")
+    df_candidates = pd.read_csv(CANDIDATES_PATH)
+    
+    ollama_client = ollama.Client()
+    EMBEDDING_MODEL = 'nomic-embed-text'
+    
+    ollama_client.list()
+    print(f"✅ Recommender loaded V3 model from: {MODEL_PATH}")
+    print(f"✅ Recommender loaded {len(df_candidates)} candidates from: {CANDIDATES_PATH}")
 
-    # --- 2. Get Feature Names from the Model ---
-    # We get the feature categories *directly* from the trained pipeline
-    # This ensures we always use the right features
-    preprocessor = model_pipeline.named_steps['preprocessor']
-    ohe_transformer = preprocessor.named_transformers_['cat']
-    
-    # Get the names of the categorical features the model was trained on
-    # [ 'pollutant', 'policy_type', 'action_type' ]
-    CATEGORICAL_FEATURES = preprocessor.transformers_[0][2]
-    
-    # Get all the unique *values* (categories) the model learned
-    # This gives us a list of lists, e.g., [['EDGAR_CO2', ...], ['Investment', ...]]
-    FEATURE_CATEGORIES = ohe_transformer.categories_
-    
-    # Define the class we want to optimize for (must match the label from training)
+    # --- 2. Get Model Configuration ---
     OPTIMIZATION_TARGET_CLASS = "Good Impact"
-    
-    if OPTIMIZATION_TARGET_CLASS not in model_pipeline.classes_:
-        print(f"❌ WARNING: Target class '{OPTIMIZATION_TARGET_CLASS}' not found in model classes.")
-        print(f"   Available classes: {model_pipeline.classes_}")
-        # As a fallback, just pick the first class
-        OPTIMIZATION_TARGET_CLASS = model_pipeline.classes_[0]
-        print(f"   Falling back to: {OPTIMIZATION_TARGET_CLASS}")
+    NUM_EMBEDDING_FEATURES = 768
 
+    if OPTIMIZATION_TARGET_CLASS not in model_pipeline.classes_:
+        print(f"❌ WARNING: Target class '{OPTIMIZATION_TARGET_CLASS}' not found.")
+        OPTIMIZATION_TARGET_CLASS = model_pipeline.classes_[0] # Fallback
+        print(f"   Falling back to: {OPTIMIZATION_TARGET_CLASS}")
 
 except Exception as e:
     print(f"❌ CRITICAL STARTUP ERROR (Recommender): {e}")
     model_pipeline = None
+    ollama_client = None
+    df_candidates = None
 
 router = APIRouter()
 
-# --- 3. Define API Input (Response) ---
+# --- 3. Define API Response ---
 class Recommendation(BaseModel):
-    policy_type: str
-    action_type: str
+    policy_name: str
+    policy_text: str
     pollutant: str
-    confidence: float
+    confidence_in_good_impact: float
     predicted_class: str
+    policy_type_debug: str
+    action_type_debug: str
 
 class RecommendationResponse(BaseModel):
     recommendations: List[Recommendation]
 
-# --- 4. Define the API Endpoint ---
+# --- 4. Helper Functions (Copied from simulator.py) ---
+
+def get_policy_features_simple(policy_content: str) -> Dict[str, str]:
+    # (Identical to the simulator's helper)
+    if not ollama_client: return {'policy_type': 'Error', 'action_type': 'Error'}
+    prompt = f"""
+    You are an expert policy analyst. Classify the text.
+    Your response MUST be a valid JSON object with "policy_type" and "action_type".
+    1. "policy_type": (e.g., 'RenewableEnergy', 'EnergyEfficiency', 'Transport', 'Industrial', 'Framework', 'Other')
+    2. "action_type": (e.g., 'Regulation', 'Standard', 'Investment', 'R&D', 'TaxIncentive', 'General', 'Other') <-- MUST CHOOSE ONLY ONE.
+    Policy Text: "{policy_content[:2000]}" 
+    """
+    try:
+        response = ollama_client.chat(model='mistral', messages=[{'role': 'user', 'content': prompt}], format='json')
+        features = json.loads(response['message']['content'])
+        if 'policy_type' not in features or 'action_type' not in features:
+            features = {'policy_type': 'ParseError', 'action_type': 'ParseError'}
+        
+        raw_action = features.get('action_type', 'Other')
+        if isinstance(raw_action, list): clean_action = raw_action[0] if raw_action else 'Other'
+        elif isinstance(raw_action, str): clean_action = raw_action.split(',')[0].strip()
+        else: clean_action = 'Other'
+        features['action_type'] = clean_action
+        return features
+    except Exception:
+        return {'policy_type': 'Error', 'action_type': 'Error'}
+
+def get_policy_embedding(policy_content: str) -> List[float]:
+    # (Identical to the simulator's helper)
+    if not ollama_client: return None
+    try:
+        response = ollama_client.embeddings(model=EMBEDDING_MODEL, prompt=policy_content)
+        embedding = response.get('embedding')
+        if embedding and len(embedding) == NUM_EMBEDDING_FEATURES:
+            return embedding
+        return None
+    except Exception:
+        return None
+
+# --- 5. Define the API Endpoint (COMBINED Logic) ---
 
 @router.get("/", response_model=RecommendationResponse)
 async def get_recommendations(
@@ -71,63 +110,72 @@ async def get_recommendations(
     top_n: int = Query(5, description="The number of recommendations to return")
 ):
     """
-    Recommends the best policy combinations to achieve a "Good Impact"
-    for a specific pollutant.
+    Ranks candidate policies using the V3 COMBINED model.
     """
-    if not model_pipeline:
-        raise HTTPException(status_code=503, detail="Recommender model is not loaded.")
+    if not model_pipeline or df_candidates is None or not ollama_client:
+        raise HTTPException(status_code=503, detail="Recommender is not loaded.")
 
-    # --- Step 1: Generate all possible scenarios ---
+    print(f"Generating features and embeddings for {len(df_candidates)} candidates...")
     
-    # Get the 'policy_type' and 'action_type' categories
-    try:
-        policy_type_options = FEATURE_CATEGORIES[CATEGORICAL_FEATURES.index('policy_type')]
-        action_type_options = FEATURE_CATEGORIES[CATEGORICAL_FEATURES.index('action_type')]
-    except (ValueError, IndexError):
-        raise HTTPException(status_code=500, detail="Model feature names mismatch.")
-
-    # Create all combinations
-    all_combinations = list(itertools.product(policy_type_options, action_type_options))
-    
-    # Create the input DataFrame
-    df_scenarios = pd.DataFrame(all_combinations, columns=['policy_type', 'action_type'])
-    df_scenarios['pollutant'] = pollutant
-    df_scenarios['policy_year'] = policy_year
-    
-    # Re-order columns to match model's training order
-    df_scenarios = df_scenarios[CATEGORICAL_FEATURES + ['policy_year']]
-
-    # --- Step 2: Get predictions for all scenarios ---
-    try:
-        # Get the probabilities for ALL classes for ALL scenarios
-        all_probabilities = model_pipeline.predict_proba(df_scenarios)
+    # --- Step 1: Get ALL features for all candidates ---
+    all_features = []
+    for index, row in df_candidates.iterrows():
+        text = row['policy_text']
+        simple_features = get_policy_features_simple(text)
+        embedding = get_policy_embedding(text)
         
-        # Get the predicted class for ALL scenarios
-        all_predictions = model_pipeline.predict(df_scenarios)
+        if embedding and simple_features['policy_type'] != 'Error':
+            record = {
+                'policy_name': row['policy_name'],
+                'policy_text': text,
+                'pollutant': pollutant,
+                'policy_year': policy_year,
+                'policy_type': simple_features['policy_type'],
+                'action_type': simple_features['action_type'],
+            }
+            # Add the embedding
+            record.update({f'embed_{i}': val for i, val in enumerate(embedding)})
+            all_features.append(record)
+        else:
+            print(f"Skipping candidate: {row['policy_name']} (LLM Error)")
+
+    if not all_features:
+        raise HTTPException(status_code=500, detail="No valid policy candidates could be featurized.")
+
+    # --- Step 2: Create the DataFrame for the model ---
+    df_scenarios = pd.DataFrame.from_records(all_features)
+    df_results = df_scenarios[['policy_name', 'policy_text', 'policy_type', 'action_type']].copy() # For the final result
+
+    # --- Step 3: Get predictions ---
+    try:
+        # Ensure column order (from Script 11)
+        cat_features = ['pollutant', 'policy_type', 'action_type']
+        num_features = ['policy_year'] + [f'embed_{i}' for i in range(NUM_EMBEDDING_FEATURES)]
+        df_scenarios_ordered = df_scenarios[cat_features + num_features]
+    
+        all_probabilities = model_pipeline.predict_proba(df_scenarios_ordered)
+        all_predictions = model_pipeline.predict(df_scenarios_ordered)
         
-        # Find the column index for our target class (e.g., "Good Impact")
         target_class_index = list(model_pipeline.classes_).index(OPTIMIZATION_TARGET_CLASS)
         
-        # Get the specific confidence score for our target class
-        df_scenarios['confidence'] = all_probabilities[:, target_class_index]
-        df_scenarios['predicted_class'] = all_predictions
+        df_results['confidence_in_good_impact'] = all_probabilities[:, target_class_index]
+        df_results['predicted_class'] = all_predictions
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Model prediction failed: {e}")
 
-    # --- Step 3: Sort and format the results ---
-    
-    # Sort by the confidence in "Good Impact", descending
-    df_top_results = df_scenarios.sort_values(by='confidence', ascending=False).head(top_n)
+    # --- Step 4: Sort and format results ---
+    df_top_results = df_results.sort_values(by='confidence_in_good_impact', ascending=False).head(top_n)
 
-    # Format for the API response
     recommendations = [
         Recommendation(
-            policy_type=row.policy_type,
-            action_type=row.action_type,
-            pollutant=row.pollutant,
-            confidence=row.confidence,
-            predicted_class=row.predicted_class
+            policy_name=row.policy_name,
+            policy_text=row.policy_text,
+            pollutant=pollutant,
+            confidence_in_good_impact=row.confidence_in_good_impact,
+            predicted_class=row.predicted_class,
+            policy_type_debug=row.policy_type,
+            action_type_debug=row.action_type
         )
         for index, row in df_top_results.iterrows()
     ]
