@@ -1,5 +1,4 @@
 import os
-import joblib
 import pandas as pd
 import ollama
 import json
@@ -8,33 +7,32 @@ from pydantic import BaseModel
 from pathlib import Path
 from typing import List, Dict
 
-# --- 1. Setup: Load COMBINED Model (V3) ---
-
+# --- 1. Setup: Load Knowledge Base ---
 try:
     FILE_DIR = Path(__file__).parent
     ROOT_DIR = FILE_DIR.parents[4] # 0=v1, 1=api, 2=app, 3=backend, 4=ClimateX
     
-    # --- UPDATED ---
-    # Loading the V3 COMBINED model (from Script 11)
-    MODEL_PATH = ROOT_DIR / "model_artifacts" / "robust_simulator_pipeline_v3.joblib"
+    # --- UPDATED: Load the featurized DB as our "Knowledge Base" ---
+    DB_PATH = ROOT_DIR / "data" / "processed" / "india_policies_featurized_local.csv"
     
-    if not MODEL_PATH.exists():
-        raise FileNotFoundError(f"Model not found at calculated path: {MODEL_PATH}")
+    if not DB_PATH.exists():
+        raise FileNotFoundError(f"Knowledge Base not found at: {DB_PATH}")
 
-    model_pipeline = joblib.load(MODEL_PATH)
+    # Load the 603 real policies into memory
+    df_knowledge_base = pd.read_csv(DB_PATH)
+    # Clean it just like we did for training
+    df_knowledge_base = df_knowledge_base.dropna(subset=['Policy', 'Year', 'policy_type', 'action_type'])
+    df_knowledge_base = df_knowledge_base[~df_knowledge_base['policy_type'].isin(['ParseError', 'Error'])]
     
     ollama_client = ollama.Client()
-    EMBEDDING_MODEL = 'nomic-embed-text'
-    
     ollama_client.list()
-    print(f"✅ V3 COMBINED Model loaded from: {MODEL_PATH}")
-    print(f"✅ Ollama client connected successfully (using '{EMBEDDING_MODEL}' and 'mistral').")
-
-    NUM_EMBEDDING_FEATURES = 768
+    
+    print(f"✅ Causal Analogy Engine loaded with {len(df_knowledge_base)} policies from: {DB_PATH}")
+    print(f"✅ Ollama client connected successfully.")
 
 except Exception as e:
     print(f"❌ CRITICAL STARTUP ERROR: {e}")
-    model_pipeline = None
+    df_knowledge_base = None
     ollama_client = None
 
 router = APIRouter()
@@ -43,21 +41,26 @@ router = APIRouter()
 
 class PolicySimulationRequest(BaseModel):
     policy_text: str
-    pollutant: str
+    pollutant: str  # We'll keep this for future use, but the logic won't use it yet
     policy_year: int
 
+class HistoricalAnalogy(BaseModel):
+    policy_name: str
+    year_enacted: int
+    policy_type: str
+    action_type: str
+
 class PolicySimulationResponse(BaseModel):
-    predicted_class: str
-    confidence_scores: Dict[str, float]
-    # We'll also return the classified features for debugging
-    policy_type_debug: str
-    action_type_debug: str
+    user_policy_type: str
+    user_action_type: str
+    historical_analogies_found: int
+    analogies: List[HistoricalAnalogy]
 
-# --- 3. Helper Functions (Two of them now) ---
+# --- 3. Helper Function: Featurize Text with LLM ---
 
-def get_policy_features_simple(policy_content: str) -> Dict[str, str]:
+def get_policy_features(policy_content: str) -> Dict[str, str]:
     """
-    Uses the 'mistral' LLM to get the *simple features* (policy_type, action_type).
+    Uses the 'mistral' LLM to get the simple features (policy_type, action_type).
     This version is robust and cleans the output.
     """
     if not ollama_client:
@@ -97,89 +100,49 @@ def get_policy_features_simple(policy_content: str) -> Dict[str, str]:
         print(f"❌ LLM Simple Feature Error: {e}")
         raise HTTPException(status_code=500, detail=f"LLM (mistral) featurization failed: {e}")
 
-def get_policy_embedding(policy_content: str) -> List[float]:
-    """
-    Uses the 'nomic-embed-text' LLM to get the text *embedding*.
-    """
-    if not ollama_client:
-        raise HTTPException(status_code=503, detail="Ollama client (nomic) not available.")
-    
-    if pd.isna(policy_content) or not policy_content.strip():
-        raise HTTPException(status_code=400, detail="Policy text cannot be empty.")
-    try:
-        response = ollama_client.embeddings(
-            model=EMBEDDING_MODEL,
-            prompt=policy_content
-        )
-        embedding = response.get('embedding')
-        if not embedding or len(embedding) != NUM_EMBEDDING_FEATURES:
-            raise ValueError(f"Embedding length mismatch. Expected {NUM_EMBEDDING_FEATURES}, Got {len(embedding)}")
-        return embedding
-    except Exception as e:
-        print(f"❌ LLM Embedding Error: {e}")
-        raise HTTPException(status_code=500, detail=f"LLM (nomic) embedding failed: {e}")
-    
-# --- 4. Define the API Endpoint (COMBINED Logic) ---
+# --- 4. Define the API Endpoint (NEW Knowledge Retrieval Logic) ---
 
 @router.post("/simulate", response_model=PolicySimulationResponse)
 async def simulate_policy_impact(request: PolicySimulationRequest):
     """
-    Simulates the impact using the V3 COMBINED model.
-    1. Gets simple features (policy_type) from LLM.
-    2. Gets text embedding from LLM.
-    3. Predicts impact.
+    Simulates the impact of a new policy by finding historical analogies.
+    1. Featurizes the policy text using a local LLM.
+    2. Searches the knowledge base for real policies with the same features.
     """
-    if not model_pipeline:
-        raise HTTPException(status_code=503, detail="Model V3 is not loaded.")
+    if df_knowledge_base is None or ollama_client is None:
+        raise HTTPException(status_code=503, detail="System is not loaded. Check server logs.")
 
+    # Step 1: Featurize the user's policy text
     try:
-        # Step 1: Get simple features
-        simple_features = get_policy_features_simple(request.policy_text)
-        
-        # Step 2: Get embedding
-        embedding = get_policy_embedding(request.policy_text)
+        features = get_policy_features(request.policy_text)
+        user_policy_type = features.get('policy_type')
+        user_action_type = features.get('action_type')
     except HTTPException as e:
         raise e
 
-    # Step 3: Create the DataFrame for the model (must match Script 11)
-    
-    # Dict for embedding features
-    embedding_features_dict = {f'embed_{i}': val for i, val in enumerate(embedding)}
-    
-    # Combined input record
-    input_data_dict = {
-        'pollutant': [request.pollutant],
-        'policy_type': [simple_features['policy_type']],
-        'action_type': [simple_features['action_type']],
-        'policy_year': [request.policy_year],
-        **embedding_features_dict
-    }
-    
-    input_data = pd.DataFrame.from_dict(input_data_dict)
-    
-    # Ensure column order (from Script 11)
-    try:
-        cat_features = ['pollutant', 'policy_type', 'action_type']
-        num_features = ['policy_year'] + [f'embed_{i}' for i in range(NUM_EMBEDDING_FEATURES)]
-        
-        input_data = input_data[cat_features + num_features]
-    except KeyError as e:
-        raise HTTPException(status_code=500, detail=f"Feature mismatch error: {e}")
+    # Step 2: Search the Knowledge Base (the DataFrame)
+    matches = df_knowledge_base[
+        (df_knowledge_base['policy_type'] == user_policy_type) &
+        (df_knowledge_base['action_type'] == user_action_type)
+    ]
 
-    # Step 4: Get prediction
-    try:
-        predicted_class = model_pipeline.predict(input_data)[0]
-        probabilities = model_pipeline.predict_proba(input_data)[0]
-        class_labels = model_pipeline.classes_
-        confidence_scores = {label: prob for label, prob in zip(class_labels, probabilities)}
+    # Step 3: Format the results
+    analogies = []
+    if not matches.empty:
+        # Sort by most recent first
+        matches = matches.sort_values(by='Year', ascending=False)
+        for _, row in matches.iterrows():
+            analogies.append(HistoricalAnalogy(
+                policy_name=row['Policy'],
+                year_enacted=row['Year'],
+                policy_type=row['policy_type'],
+                action_type=row['action_type']
+            ))
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Model prediction failed: {e}")
-
-    # Step 5: Return the result
+    # Step 4: Return the result
     return PolicySimulationResponse(
-        predicted_class=predicted_class,
-        confidence_scores=confidence_scores,
-        policy_type_debug=simple_features['policy_type'],
-        action_type_debug=simple_features['action_type']
+        user_policy_type=user_policy_type,
+        user_action_type=user_action_type,
+        historical_analogies_found=len(analogies),
+        analogies=analogies
     )
