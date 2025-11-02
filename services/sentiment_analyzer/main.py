@@ -21,7 +21,9 @@ def get_sentiment_summary():
     """
     Provides a summary of post sentiments.
     """
-    if not posts_collection: return {"error": "Database connection not available."}
+    # --- FIX: Changed 'if not posts_collection' to 'if posts_collection is None' ---
+    if posts_collection is None: 
+        return {"error": "Database connection not available."}
     
     pipeline = [
         {"$match": {"sentiment.label": {"$in": ["positive", "negative", "neutral"]}}},
@@ -39,14 +41,16 @@ def get_sentiment_trendline():
     """
     Provides sentiment counts grouped by day for the last 30 days.
     """
-    if not posts_collection: return {"error": "Database connection not available."}
+    # --- FIX: Changed 'if not posts_collection' to 'if posts_collection is None' ---
+    if posts_collection is None: 
+        return {"error": "Database connection not available."}
     
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
     
     pipeline = [
         {"$match": {
             "sentiment.label": {"$in": ["positive", "negative", "neutral"]},
-            "created_at": {"$gte": thirty_days_ago} # <-- This now works!
+            "created_at": {"$gte": thirty_days_ago}
         }},
         {
             "$project": {
@@ -77,13 +81,15 @@ def get_wordcloud_data(sentiment_type: str = Query("positive", enum=["positive",
     """
     Provides the top 30 most frequent words for a given sentiment type.
     """
-    if not posts_collection: return {"error": "Database connection not available."}
+    # --- FIX: Changed 'if not posts_collection' to 'if posts_collection is None' ---
+    if posts_collection is None: 
+        return {"error": "Database connection not available."}
     
     pipeline = [
         {"$match": {"sentiment.label": sentiment_type}},
         {"$project": {"words": {"$split": ["$cleaned_text", " "]}}},
         {"$unwind": "$words"},
-        {"$match": {"words": {"$ne": ""}}}, # <-- Add this to remove empty words
+        {"$match": {"words": {"$ne": ""}}}, # Remove empty words
         {"$group": {"_id": "$words", "count": {"$sum": 1}}},
         {"$sort": {"count": -1}},
         {"$limit": 30}
@@ -97,7 +103,9 @@ def get_source_distribution():
     Provides sentiment counts grouped by source (Reddit, NewsAPI)
     and by topic.
     """
-    if not posts_collection: return {"error": "Database connection not available."}
+    # --- FIX: Changed 'if not posts_collection' to 'if posts_collection is None' ---
+    if posts_collection is None: 
+        return {"error": "Database connection not available."}
 
     pipeline = [
         {"$match": {"sentiment.label": {"$in": ["positive", "negative", "neutral"]}}},
