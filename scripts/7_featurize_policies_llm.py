@@ -1,3 +1,4 @@
+#7_featurize_policies_llm.py
 import pandas as pd
 import os
 import sys
@@ -44,7 +45,7 @@ def get_policy_features(policy_content):
     
     Your response MUST be a valid JSON object with two keys:
     1. "policy_type": (e.g., 'RenewableEnergy', 'EnergyEfficiency', 'AirQualityStandard', 'Forestry', 'WaterManagement', 'Transport', 'Industrial', 'Framework', 'Agriculture', 'Other')
-    2. "action_type": (e.g., 'Regulation', 'Standard', 'Investment', 'R&D', 'TaxIncentive', 'General', 'Other')
+    2. "action_type": (e.g., 'Regulation', 'Standard', 'Investment', 'R&D', 'TaxIncentive', 'General', 'Other') <-- YOU MUST CHOOSE ONLY THE *ONE* BEST CATEGORY.
 
     Policy Text:
     "{policy_content[:2000]}" 
