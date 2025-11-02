@@ -63,7 +63,6 @@ def get_base_match_query(topic_filter: Optional[str], days_lookback: int) -> Dic
 def get_source_distribution_data(topic_filter: Optional[str], days_lookback: int) -> List[Dict]:
     """
     Retrieves sentiment counts grouped by source and topic for the synthesis report.
-    (Used by /synthesis and /source_distribution)
     """
     check_db_connection()
     match_query = get_base_match_query(topic_filter, days_lookback)
@@ -104,6 +103,7 @@ def generate_synthesis_report(summary_data: Dict, distribution_data: List[Dict])
     if ollama_client is None:
         return "System Error: LLM client is unavailable for synthesis."
 
+    # Format the data into a human-readable context block
     context = f"""
     --- OVERALL SENTIMENT SUMMARY ---
     Total Analyzed: {summary_data['total_analyzed_posts']}
