@@ -12,7 +12,7 @@ try:
     FILE_DIR = Path(__file__).parent
     ROOT_DIR = FILE_DIR.parents[4] # 0=v1, 1=api, 2=app, 3=backend, 4=ClimateX
     
-    # --- UPDATED: Load the featurized DB as our "Knowledge Base" ---
+    # --- Load the featurized DB as our "Knowledge Base" ---
     DB_PATH = ROOT_DIR / "data" / "processed" / "india_policies_featurized_local.csv"
     
     if not DB_PATH.exists():
@@ -41,7 +41,7 @@ router = APIRouter()
 
 class PolicySimulationRequest(BaseModel):
     policy_text: str
-    pollutant: str  # We'll keep this for future use, but the logic won't use it yet
+    pollutant: str
     policy_year: int
 
 class HistoricalAnalogy(BaseModel):
@@ -100,7 +100,7 @@ def get_policy_features(policy_content: str) -> Dict[str, str]:
         print(f"❌ LLM Simple Feature Error: {e}")
         raise HTTPException(status_code=500, detail=f"LLM (mistral) featurization failed: {e}")
 
-# --- 4. Define the API Endpoint (NEW Knowledge Retrieval Logic) ---
+# --- 4. Define the API Endpoint (Knowledge Retrieval Logic) ---
 
 @router.post("/simulate", response_model=PolicySimulationResponse)
 async def simulate_policy_impact(request: PolicySimulationRequest):

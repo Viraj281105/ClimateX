@@ -69,8 +69,9 @@ async def get_recommendations(
 
     # Step 1: Find the expert-recommended keywords for this pollutant
     keywords = []
+    # Find the rule that matches the start of the pollutant name
     for key, value in EXPERT_RULES.items():
-        if key.startswith(pollutant) or pollutant.startswith(key):
+        if pollutant.startswith(key):
             keywords = value
             break
     
