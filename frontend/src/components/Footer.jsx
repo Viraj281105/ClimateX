@@ -1,5 +1,5 @@
 import { Cloud, Github, Twitter, Linkedin } from 'lucide-react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom'; // <-- Removed, was not being used
 
 export const Footer = () => {
   return (
@@ -18,7 +18,9 @@ export const Footer = () => {
               <span className="text-xl font-bold text-white">ClimateX</span>
             </div>
             <p className="text-gray-300 text-sm max-w-md">
-              Real-Time Climate Intelligence for India. Empowering policymakers with AI insights, predictive modeling, and data-driven solutions for sustainable climate action.
+              Real-Time Climate Intelligence for India. Empowering policymakers
+              with AI insights, predictive modeling, and data-driven solutions
+              for sustainable climate action.
             </p>
           </div>
 
@@ -55,10 +57,16 @@ export const Footer = () => {
               © 2025 ClimateX | Built for Climate Innovation Hackathon
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-emerald-400 text-sm transition-colors">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-emerald-400 text-sm transition-colors"
+              >
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-400 text-sm transition-colors">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-emerald-400 text-sm transition-colors"
+              >
                 Terms of Service
               </a>
             </div>
