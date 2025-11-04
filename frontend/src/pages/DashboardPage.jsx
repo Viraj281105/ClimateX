@@ -48,7 +48,8 @@ const WeatherMap = () => {
           top: 10,
           left: "50%",
           transform: "translateX(-50%)",
-          backgroundColor: "rgba(2, 31, 2, 0.7)",
+          // This toolbar sits *on top* of the map, so it should stay dark for contrast.
+          backgroundColor: "rgba(2, 31, 2, 0.7)", 
           borderRadius: "12px",
           padding: "8px 12px",
           zIndex: 1000,
@@ -106,7 +107,6 @@ const WeatherMap = () => {
 };
 
 // --- Helper Functions for API Data ---
-// Converts OpenWeatherMap AQI index (1-5) to text
 const getAqiText = (aqi) => {
   switch (aqi) {
     case 1: return 'Good';
@@ -118,7 +118,6 @@ const getAqiText = (aqi) => {
   }
 };
 
-// Formats the timestamp from the API
 const formatAqiTime = (timestamp) => {
   return new Date(timestamp * 1000).toLocaleTimeString('en-US', {
     hour: 'numeric',
@@ -128,17 +127,13 @@ const formatAqiTime = (timestamp) => {
 
 // --- Main Dashboard Page Component ---
 const DashboardPage = () => {
-  // State for all our data
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [stats, setStats] = useState([]); // For the 4 cards
-  const [aqiTrend, setAqiTrend] = useState([]); // For the graph
+  const [stats, setStats] = useState([]);
+  const [aqiTrend, setAqiTrend] = useState([]);
 
   useEffect(() => {
-    // Get the API key from the .env file
     const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
-    
-    // Hardcoding Pune, India coordinates
     const lat = 18.5204;
     const lon = 73.8567;
 
@@ -146,7 +141,6 @@ const DashboardPage = () => {
       setIsLoading(true);
       setError(null);
 
-      // Check if API key is present
       if (!API_KEY) {
         setError("Weather API key is missing. Please check your .env file.");
         setIsLoading(false);
@@ -154,11 +148,8 @@ const DashboardPage = () => {
       }
 
       try {
-        // We will make two API calls at the same time
         const [weatherRes, aqiRes] = await Promise.all([
-          // 1. Fetch CURRENT weather (for Temp, Rain)
           fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`),
-          // 2. Fetch FORECASTED air pollution (for AQI stat card and graph)
           fetch(`https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}`)
         ]);
 
@@ -170,40 +161,32 @@ const DashboardPage = () => {
         const aqiData = await aqiRes.json();
 
         // --- Process Data ---
-
-        // 1. For Stats Cards
         const currentTemp = weatherData.main.temp;
-        // API gives rain in '1h' or '3h'. Default to 0 if 'rain' object doesn't exist.
         const currentRain = weatherData.rain ? weatherData.rain['1h'] || 0 : 0;
-        // The first item in the forecast list is the current AQI
         const currentAqiIndex = aqiData.list[0].main.aqi; 
         const currentAqiText = getAqiText(currentAqiIndex);
         
-        // 2. For Graph (we use the 'pm2_5' component)
         const formattedAqiTrend = aqiData.list.map(item => ({
           date: formatAqiTime(item.dt),
-          // We can graph the PM2.5 value, which is more precise than the 1-5 index
           pm2_5: item.components.pm2_5, 
         }));
         
         // --- Set All State ---
-        setAqiTrend(formattedAqiTrend); // For the graph
-
-        // For the 4 stat cards
+        setAqiTrend(formattedAqiTrend);
         setStats([
           {
             icon: Thermometer,
             label: 'Temperature',
-            value: `${currentTemp.toFixed(1)}°C`, // To 1 decimal place
-            trend: weatherData.weather[0].description, // e.g., "scattered clouds"
+            value: `${currentTemp.toFixed(1)}°C`,
+            trend: weatherData.weather[0].description,
             color: 'from-amber-500 to-orange-500',
             textColor: 'text-amber-400',
           },
           {
             icon: Cloud,
             label: 'Air Quality Index',
-            value: currentAqiIndex, // The 1-5 index
-            trend: currentAqiText, // "Poor", "Good", etc.
+            value: currentAqiIndex,
+            trend: currentAqiText,
             color: 'from-red-500 to-pink-500',
             textColor: 'text-red-400',
           },
@@ -217,7 +200,7 @@ const DashboardPage = () => {
           },
           {
             icon: Leaf,
-            label: 'CO₂ Levels (Mock)', // No API for this
+            label: 'CO₂ Levels (Mock)',
             value: '405 ppm',
             trend: '+5 ppm',
             color: 'from-emerald-500 to-teal-500',
@@ -234,21 +217,22 @@ const DashboardPage = () => {
     };
 
     fetchData();
-  }, []); // Empty dependency array = runs once on mount
+  }, []);
 
   return (
-    <div className="min-h-screen pb-12 bg-[#021f02] text-white">
+    // 1. PAGE BACKGROUND: Set to #11c877
+    <div className="min-h-screen pb-12" style={{ backgroundColor: '#11c877' }}>
       <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header - Text is now dark to show on light bg */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12 pt-24"
+          className="mb-12 pt-24 text-gray-900"
         >
           <h1 className="text-4xl font-bold mb-3">
-            India <span className="text-gradient-emerald">Climate Dashboard</span>
+            India <span className="text-gradient-emerald" style={{color: '#021f02'}}>Climate Dashboard</span>
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-lg text-gray-800">
             Real-time climate intelligence and environmental monitoring across
             India.
           </p>
@@ -263,8 +247,10 @@ const DashboardPage = () => {
             transition={{ delay: 0.2 }}
             className="lg:col-span-2"
           >
-            <Card className="glass-card p-6 h-full">
+            {/* 2. CARD BACKGROUND: Set to #021f02 */}
+            <Card className="p-6 h-full" style={{ backgroundColor: '#021f02' }}>
               <h2 className="text-xl font-semibold mb-4 flex items-center">
+                {/* Text inside card is light again */}
                 <span className="text-gradient-emerald">National Overview</span>
               </h2>
               <div className="rounded-xl overflow-hidden h-[500px] border border-white/10">
@@ -281,21 +267,28 @@ const DashboardPage = () => {
             className="space-y-4"
           >
             {isLoading ? (
-              <Card className="glass-card-hover p-6 h-[400px] flex justify-center items-center">
+              <Card 
+                className="p-6 h-[400px] flex justify-center items-center"
+                style={{ backgroundColor: '#021f02' }} // 2. CARD BACKGROUND
+              >
                 <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
               </Card>
             ) : error ? (
-              <Card className="glass-card-hover p-6 h-[400px] flex flex-col justify-center items-center text-red-400">
-                <AlertTriangle className="w-8 h-8 mb-4" />
-                <span className="text-center">{error}</span>
+              <Card 
+                className="p-6 h-[400px] flex flex-col justify-center items-center"
+                style={{ backgroundColor: '#021f02' }} // 2. CARD BACKGROUND
+              >
+                <AlertTriangle className="w-8 h-8 mb-4 text-red-400" />
+                <span className="text-center text-red-400">{error}</span>
               </Card>
             ) : (
               stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <Card key={index} className="glass-card-hover p-6">
+                  <Card key={index} className="p-6" style={{ backgroundColor: '#021f02' }}> {/* 2. CARD BACKGROUND */}
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
+                        {/* Text inside card is light */}
                         <p className="text-sm text-muted-foreground mb-1">
                           {stat.label}
                         </p>
@@ -327,9 +320,10 @@ const DashboardPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="glass-card p-6">
+          {/* 2. CARD BACKGROUND: Set to #021f02 */}
+          <Card className="p-6" style={{ backgroundColor: '#021f02' }}>
             <h2 className="text-xl font-semibold mb-6">
-              Air Quality (PM2.5) {' '}
+              Air Quality (PM2.5){' '}
               <span className="text-gradient-emerald">Forecast</span>
             </h2>
             <div className="h-80">
@@ -345,6 +339,7 @@ const DashboardPage = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={aqiTrend}>
                     <defs>
+                      {/* Reverted gradient to emerald */}
                       <linearGradient id="aqiGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop
                           offset="5%"
@@ -360,15 +355,15 @@ const DashboardPage = () => {
                     </defs>
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="rgba(255,255,255,0.1)"
+                      stroke="rgba(255,255,255,0.1)" // Light grid lines
                     />
                     <XAxis
                       dataKey="date"
-                      stroke="hsl(var(--muted-foreground))"
+                      stroke="hsl(var(--muted-foreground))" // Light text
                       style={{ fontSize: '12px' }}
                     />
                     <YAxis
-                      stroke="hsl(var(--muted-foreground))"
+                      stroke="hsl(var(--muted-foreground))" // Light text
                       style={{ fontSize: '12px' }}
                     />
                     <Tooltip
@@ -383,9 +378,16 @@ const DashboardPage = () => {
                       type="monotone"
                       dataKey="pm2_5"
                       name="PM2.5"
-                      stroke="hsl(var(--emerald))"
+                      stroke="hsl(var(--emerald))" // Emerald line
                       strokeWidth={2}
                       fill="url(#aqiGradient)"
+                      // The "ball" is now emerald
+                      activeDot={{ 
+                        r: 6, 
+                        fill: 'hsl(var(--emerald))', 
+                        stroke: '#FFF', 
+                        strokeWidth: 2 
+                      }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
