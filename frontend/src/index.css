@@ -1,0 +1,253 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+@layer base {
+    :root {
+        /* Climate X Brand Colors - HSL Format */
+        --background: 222 47% 11%;
+        --foreground: 0 0% 98%;
+        
+        /* Deep Navy Base */
+        --primary: 222 47% 11%;
+        --primary-foreground: 0 0% 98%;
+        --primary-glow: 222 50% 20%;
+        
+        /* Emerald Green */
+        --emerald: 160 84% 39%;
+        --emerald-light: 160 84% 55%;
+        --emerald-dark: 160 100% 25%;
+        
+        /* Cyan Blue */
+        --cyan: 181 100% 41%;
+        --cyan-light: 181 100% 60%;
+        --cyan-dark: 181 100% 30%;
+        
+        /* Amber Accent */
+        --amber: 38 92% 56%;
+        --amber-light: 38 100% 70%;
+        
+        /* Teal Transition */
+        --teal: 173 97% 17%;
+        --teal-mid: 173 80% 30%;
+        
+        /* Semantic Colors */
+        --card: 222 40% 14%;
+        --card-foreground: 0 0% 98%;
+        --popover: 222 40% 14%;
+        --popover-foreground: 0 0% 98%;
+        
+        --secondary: 173 80% 30%;
+        --secondary-foreground: 0 0% 98%;
+        
+        --muted: 222 20% 25%;
+        --muted-foreground: 0 0% 70%;
+        
+        --accent: 160 84% 39%;
+        --accent-foreground: 0 0% 98%;
+        
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 98%;
+        
+        --border: 222 20% 25%;
+        --input: 222 20% 25%;
+        --ring: 160 84% 39%;
+        
+        /* Status Colors */
+        --success: 160 84% 39%;
+        --warning: 38 92% 56%;
+        --danger: 0 84% 60%;
+        --info: 181 100% 41%;
+        
+        /* Chart Colors */
+        --chart-1: 160 84% 39%;
+        --chart-2: 181 100% 41%;
+        --chart-3: 38 92% 56%;
+        --chart-4: 222 50% 35%;
+        --chart-5: 173 80% 30%;
+        
+        /* Glassmorphism */
+        --glass-bg: 222 40% 14% / 0.7;
+        --glass-border: 0 0% 100% / 0.1;
+        
+        --radius: 0.75rem;
+    }
+    
+    .dark {
+        /* Dark mode already optimized above */
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    /* Glassmorphism Cards */
+    .glass-card {
+        @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl;
+    }
+    
+    .glass-card-hover {
+        @apply glass-card transition-all duration-300 hover:bg-white/10 hover:shadow-2xl hover:scale-[1.02];
+    }
+    
+    /* Gradient Backgrounds */
+    .gradient-primary {
+        background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--teal)) 50%, hsl(var(--emerald)) 100%);
+    }
+    
+    .gradient-secondary {
+        background: linear-gradient(135deg, hsl(var(--teal-mid)) 0%, hsl(var(--emerald)) 100%);
+    }
+    
+    .gradient-hero {
+        background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--teal)) 40%, hsl(var(--emerald-dark)) 100%);
+    }
+    
+    .gradient-glow {
+        background: radial-gradient(circle at 50% 50%, hsl(var(--emerald)) 0%, transparent 70%);
+    }
+    
+    /* Animated Gradient */
+    .gradient-animated {
+        background: linear-gradient(-45deg, hsl(var(--primary)), hsl(var(--teal)), hsl(var(--emerald)), hsl(var(--cyan)));
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Text Gradients */
+    .text-gradient-emerald {
+        @apply bg-clip-text text-transparent;
+        background-image: linear-gradient(135deg, hsl(var(--emerald-light)) 0%, hsl(var(--cyan)) 100%);
+    }
+    
+    /* Glow Effects */
+    .glow-emerald {
+        box-shadow: 0 0 20px hsl(var(--emerald) / 0.4), 0 0 40px hsl(var(--emerald) / 0.2);
+    }
+    
+    .glow-cyan {
+        box-shadow: 0 0 20px hsl(var(--cyan) / 0.4), 0 0 40px hsl(var(--cyan) / 0.2);
+    }
+    
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: hsl(var(--muted));
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: hsl(var(--emerald));
+        border-radius: 4px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--emerald-light));
+    }
+}
+
+@layer utilities {
+    /* Animation utilities */
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    .animate-slide-up {
+        animation: slideUp 0.6s ease-out;
+    }
+    
+    .animate-slide-in {
+        animation: slideIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+}
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+
+    [data-debug-wrapper="true"] > * {
+        margin-left: inherit;
+        margin-right: inherit;
+        margin-top: inherit;
+        margin-bottom: inherit;
+        padding-left: inherit;
+        padding-right: inherit;
+        padding-top: inherit;
+        padding-bottom: inherit;
+        column-gap: inherit;
+        row-gap: inherit;
+        gap: inherit;
+        border-left-width: inherit;
+        border-right-width: inherit;
+        border-top-width: inherit;
+        border-bottom-width: inherit;
+        border-left-style: inherit;
+        border-right-style: inherit;
+        border-top-style: inherit;
+        border-bottom-style: inherit;
+        border-left-color: inherit;
+        border-right-color: inherit;
+        border-top-color: inherit;
+        border-bottom-color: inherit;
+    }
+}

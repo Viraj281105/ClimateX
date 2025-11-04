@@ -1,0 +1,38 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+### 1. DEPENDENCIES & BUILD ARTIFACTS ###
+
+# Node dependencies and installed modules
+/node_modules
+/.pnp
+.pnp.js
+
+# Frontend build output directory
+/dist
+/build
+/out
+
+### 2. CONFIGURATION & LOGS ###
+
+# Project secrets and environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vite and TypeScript build artifacts
+/.vite
+/vite-env.d.ts.timestamp*
+/tsconfig.tsbuildinfo
+
+# Lock files and error logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/package-lock.json  # Note: Keep if using npm, ignore if required by your team
+/yarn.lock
+
+### 3. OPERATING SYSTEM & MISC ###
+.DS_Store
+/coverage
