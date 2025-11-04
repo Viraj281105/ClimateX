@@ -17,7 +17,7 @@ export default function CausalSimulator() {
   const [policyText, setPolicyText] = useState('');
   const [pollutant, setPollutant] = useState('PM2.5'); // Default value
   const [policyYear, setPolicyYear] = useState(new Date().getFullYear());
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [results, setResults] = useState(null);
@@ -29,7 +29,6 @@ export default function CausalSimulator() {
     setResults(null);
 
     try {
-      // Construct the URL with query parameters as required
       const apiUrl = `/api/v1/causal/simulate?pollutant=${encodeURIComponent(
         pollutant
       )}&policy_year=${encodeURIComponent(policyYear)}`;
@@ -39,7 +38,6 @@ export default function CausalSimulator() {
         headers: {
           'Content-Type': 'application/json',
         },
-        // Send raw policy text in the request body
         body: JSON.stringify({ policy_text: policyText }),
       });
 
@@ -67,21 +65,34 @@ export default function CausalSimulator() {
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    // 1. PAGE BACKGROUND: Set to #57af50 and text to dark
+    <div
+      className="min-h-screen pb-12 text-gray-900"
+      style={{ backgroundColor: '#57af50' }}
+    >
+      {/* 2. LAYOUT: Removed max-width and mx-auto */}
+      <div className="px-4 sm:px-6 lg:px-8">
+        {/* Header - Added pt-24 here */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-12 pt-24"
         >
           <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-2xl mb-6">
             <Wand2 className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-bold mb-4">
-            Causal <span className="text-gradient-emerald">Simulator</span>
+            Causal{' '}
+            {/* 3. TEXT: Changed span color to be visible */}
+            <span
+              className="text-gradient-emerald"
+              style={{ color: '#13451b' }}
+            >
+              Simulator
+            </span>
           </h1>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+          {/* 3. TEXT: Changed from text-muted-foreground to dark */}
+          <p className="text-gray-800 text-lg max-w-3xl mx-auto">
             Test the potential impact of a new climate policy. Our AI will
             analyze its text and predict its causal effect on pollution levels,
             benchmarked against historical data.
@@ -97,7 +108,11 @@ export default function CausalSimulator() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-2"
           >
-            <Card className="glass-card p-6 md:p-8">
+            {/* 4. CARD BACKGROUND: Set to #13451b */}
+            <Card
+              className="p-6 md:p-8"
+              style={{ backgroundColor: '#13451b' }}
+            >
               <form onSubmit={handleSubmit}>
                 <div className="space-y-6">
                   {/* Policy Text Input */}
@@ -195,10 +210,11 @@ export default function CausalSimulator() {
             className="lg:col-span-1 space-y-8"
           >
             {/* Historical Analogies Card */}
-            <Card className="glass-card p-6">
+            {/* 4. CARD BACKGROUND: Set to #13451b */}
+            <Card className="p-6" style={{ backgroundColor: '#13451b' }}>
               <div className="flex items-center mb-4">
                 <BookOpen className="w-6 h-6 text-emerald-400 mr-3" />
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-xl font-semibold text-white">
                   Historical Analogies
                 </h2>
               </div>
@@ -211,7 +227,10 @@ export default function CausalSimulator() {
                     className="space-y-3"
                   >
                     {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-4 bg-white/10 rounded-md animate-pulse" />
+                      <div
+                        key={i}
+                        className="h-4 bg-white/10 rounded-md animate-pulse"
+                      />
                     ))}
                     <p className="text-sm text-center text-muted-foreground">
                       Searching database...
@@ -229,7 +248,7 @@ export default function CausalSimulator() {
                     results.analogies.map((analogy, index) => (
                       <li
                         key={index}
-                        className="text-sm p-3 bg-white/5 rounded-lg border border-white/10"
+                        className="text-sm p-3 bg-white/5 rounded-lg border border-white/10 text-muted-foreground"
                       >
                         {analogy}
                       </li>
@@ -260,6 +279,7 @@ export default function CausalSimulator() {
               exit={{ opacity: 0 }}
               className="mt-8"
             >
+              {/* This is an error card, so it keeps its red color */}
               <Card className="p-4 bg-red-900/50 border border-red-700 text-red-100 flex items-center">
                 <AlertTriangle className="w-5 h-5 mr-3 flex-shrink-0" />
                 <div>
@@ -277,10 +297,14 @@ export default function CausalSimulator() {
               exit={{ opacity: 0 }}
               className="mt-8"
             >
-              <Card className="glass-card p-6 md:p-8">
+              {/* 4. CARD BACKGROUND: Set to #13451b */}
+              <Card
+                className="p-6 md:p-8"
+                style={{ backgroundColor: '#13451b' }}
+              >
                 <div className="flex items-center mb-4">
                   <Scale className="w-6 h-6 text-emerald-400 mr-3" />
-                  <h2 className="text-2xl font-semibold">
+                  <h2 className="text-2xl font-semibold text-white">
                     Generated Impact Summary
                   </h2>
                 </div>

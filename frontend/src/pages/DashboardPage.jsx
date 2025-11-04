@@ -220,8 +220,8 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    // 1. PAGE BACKGROUND: Set to #11c877
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#11c877' }}>
+    // 1. PAGE BACKGROUND: Set to #57af50
+    <div className="min-h-screen pb-12" style={{ backgroundColor: '#57af50' }}>
       <div className="px-4 sm:px-6 lg:px-8">
         {/* Header - Text is now dark to show on light bg */}
         <motion.div
@@ -230,7 +230,7 @@ const DashboardPage = () => {
           className="mb-12 pt-24 text-gray-900"
         >
           <h1 className="text-4xl font-bold mb-3">
-            India <span className="text-gradient-emerald" style={{color: '#021f02'}}>Climate Dashboard</span>
+            India <span className="text-gradient-emerald" style={{color: '#13451b'}}>Climate Dashboard</span>
           </h1>
           <p className="text-lg text-gray-800">
             Real-time climate intelligence and environmental monitoring across
@@ -247,8 +247,8 @@ const DashboardPage = () => {
             transition={{ delay: 0.2 }}
             className="lg:col-span-2"
           >
-            {/* 2. CARD BACKGROUND: Set to #021f02 */}
-            <Card className="p-6 h-full" style={{ backgroundColor: '#021f02' }}>
+            {/* 2. CARD BACKGROUND: Set to #13451b */}
+            <Card className="p-6 h-full" style={{ backgroundColor: '#13451b' }}>
               <h2 className="text-xl font-semibold mb-4 flex items-center">
                 {/* Text inside card is light again */}
                 <span className="text-gradient-emerald">National Overview</span>
@@ -269,14 +269,14 @@ const DashboardPage = () => {
             {isLoading ? (
               <Card 
                 className="p-6 h-[400px] flex justify-center items-center"
-                style={{ backgroundColor: '#021f02' }} // 2. CARD BACKGROUND
+                style={{ backgroundColor: '#13451b' }} // 2. CARD BACKGROUND
               >
                 <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
               </Card>
             ) : error ? (
               <Card 
                 className="p-6 h-[400px] flex flex-col justify-center items-center"
-                style={{ backgroundColor: '#021f02' }} // 2. CARD BACKGROUND
+                style={{ backgroundColor: '#13451b' }} // 2. CARD BACKGROUND
               >
                 <AlertTriangle className="w-8 h-8 mb-4 text-red-400" />
                 <span className="text-center text-red-400">{error}</span>
@@ -285,7 +285,7 @@ const DashboardPage = () => {
               stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <Card key={index} className="p-6" style={{ backgroundColor: '#021f02' }}> {/* 2. CARD BACKGROUND */}
+                  <Card key={index} className="p-6" style={{ backgroundColor: '#13451b' }}> {/* 2. CARD BACKGROUND */}
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         {/* Text inside card is light */}
@@ -320,8 +320,8 @@ const DashboardPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          {/* 2. CARD BACKGROUND: Set to #021f02 */}
-          <Card className="p-6" style={{ backgroundColor: '#021f02' }}>
+          {/* 2. CARD BACKGROUND: Set to #13451b */}
+          <Card className="p-6" style={{ backgroundColor: '#13451b' }}>
             <h2 className="text-xl font-semibold mb-6">
               Air Quality (PM2.5){' '}
               <span className="text-gradient-emerald">Forecast</span>

@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import Footer from '@/components/Footer';
 
-// Icon mapping to link API string to component
+// Icon mapping (Unchanged)
 const iconMap = {
   Lightbulb,
   Target,
@@ -37,25 +37,22 @@ const iconMap = {
 };
 
 const PolicyLabPage = () => {
-  // State for the main policy list
+  // State and API logic (Unchanged)
   const [policies, setPolicies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // State for the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPolicy, setSelectedPolicy] = useState(null); // For basic info
-  const [detailData, setDetailData] = useState(null); // For LLM data
+  const [selectedPolicy, setSelectedPolicy] = useState(null);
+  const [detailData, setDetailData] = useState(null);
   const [isModalLoading, setIsModalLoading] = useState(false);
 
-  // 1. Initial Load: Fetch the list of policies
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
         setIsLoading(true);
         const response = await fetch('/api/v1/policies/');
         if (!response.ok) {
-          throw new Error('Failed to load policies.');
+          throw new Error('Failed to load policies. Is the backend running?');
         }
         const data = await response.json();
         setPolicies(data);
@@ -69,12 +66,11 @@ const PolicyLabPage = () => {
     fetchPolicies();
   }, []);
 
-  // 2. "Read More" Click: Open modal and fetch details
   const handleReadMore = async (policy) => {
-    setSelectedPolicy(policy); // Store the basic policy data
+    setSelectedPolicy(policy);
     setIsModalOpen(true);
     setIsModalLoading(true);
-    setDetailData(null); // Clear old data
+    setDetailData(null);
 
     try {
       const response = await fetch(
@@ -86,14 +82,12 @@ const PolicyLabPage = () => {
       const data = await response.json();
       setDetailData(data);
     } catch (err) {
-      // Handle error in modal
       setDetailData({ error: err.message });
     } finally {
       setIsModalLoading(false);
     }
   };
 
-  // --- Helper Functions from Mockup (Preserved) ---
   const getScoreColor = (score) => {
     if (score >= 80) return 'text-emerald-400';
     if (score >= 60) return 'text-cyan-400';
@@ -113,18 +107,24 @@ const PolicyLabPage = () => {
   };
   // --- End Helper Functions ---
 
-  // --- Render Functions for Page State ---
+  // --- Render Functions for Page State (Updated with page bg color) ---
   if (isLoading) {
     return (
-      <div className="min-h-screen pt-24 pb-12 flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-emerald-400 animate-spin" />
+      <div
+        className="min-h-screen pt-24 pb-12 flex items-center justify-center"
+        style={{ backgroundColor: '#57af50' }}
+      >
+        <Loader2 className="w-12 h-12 text-[#13451b] animate-spin" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen pt-24 pb-12 flex items-center justify-center">
+      <div
+        className="min-h-screen pt-24 pb-12 flex items-center justify-center"
+        style={{ backgroundColor: '#57af50' }}
+      >
         <Card className="p-8 bg-red-900/50 border border-red-700 text-red-100 flex items-center">
           <AlertTriangle className="w-8 h-8 mr-4" />
           <div>
@@ -138,18 +138,31 @@ const PolicyLabPage = () => {
   // --- End Render Functions ---
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header (Preserved) */}
+    // 1. PAGE BACKGROUND: Set to #57af50
+    <div
+      className="min-h-screen pb-12"
+      style={{ backgroundColor: '#57af50' }}
+    >
+      {/* 2. LAYOUT: Removed max-width and mx-auto */}
+      <div className="px-4 sm:px-6 lg:px-8">
+        {/* Header (Preserved) - Added pt-24 and text-gray-900 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12 text-center"
+          className="mb-12 text-center pt-24 text-gray-900"
         >
           <h1 className="text-4xl font-bold mb-4">
-            AI Policy <span className="text-gradient-emerald">Recommendations</span>
+            AI Policy{' '}
+            {/* 3. TEXT: Changed span color */}
+            <span
+              className="text-gradient-emerald"
+              style={{ color: '#13451b' }}
+            >
+              Recommendations
+            </span>
           </h1>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+          {/* 3. TEXT: Changed text color */}
+          <p className="text-gray-800 text-lg max-w-3xl mx-auto">
             Data-driven climate policy recommendations powered by artificial
             intelligence, causal inference, and public sentiment analysis.
           </p>
@@ -167,7 +180,11 @@ const PolicyLabPage = () => {
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <Card className="glass-card-hover p-6 h-full flex flex-col">
+                {/* 4. CARD BACKGROUND: Set to #13451b */}
+                <Card
+                  className="p-6 h-full flex flex-col"
+                  style={{ backgroundColor: '#13451b' }}
+                >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
@@ -175,7 +192,10 @@ const PolicyLabPage = () => {
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">{policy.title}</h3>
+                        {/* 3. TEXT: Ensure card text is light */}
+                        <h3 className="font-semibold text-lg text-white">
+                          {policy.title}
+                        </h3>
                         <Badge
                           className={`text-xs border ${getCategoryColor(
                             policy.category
@@ -269,10 +289,14 @@ const PolicyLabPage = () => {
           transition={{ delay: 0.6 }}
           className="mt-12"
         >
-          <Card className="glass-card p-8 text-center relative overflow-hidden">
+          {/* 4. CARD BACKGROUND: Set to #13451b */}
+          <Card
+            className="p-8 text-center relative overflow-hidden"
+            style={{ backgroundColor: '#13451b' }}
+          >
             <div className="absolute inset-0 gradient-animated opacity-10" />
             <div className="relative z-10">
-              <h2 className="text-2xl font-bold mb-4">
+              <h2 className="text-2xl font-bold mb-4 text-white">
                 How Our{' '}
                 <span className="text-gradient-emerald">
                   AI Policy Engine
@@ -304,7 +328,14 @@ const PolicyLabPage = () => {
 
       {/* "Read More" Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="glass-card max-w-2xl">
+        {/* 4. MODAL BACKGROUND: Set to #13451b */}
+        <DialogContent
+          className="max-w-2xl"
+          style={{
+            backgroundColor: '#13451b',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
           <DialogHeader>
             <DialogTitle className="text-2xl text-gradient-emerald">
               {selectedPolicy?.title}

@@ -1,11 +1,11 @@
 import { Cloud, Github, Twitter, Linkedin } from 'lucide-react';
-// import { Link } from 'react-router-dom'; // <-- Removed, was not being used
 
 export const Footer = () => {
   return (
     <footer
+      // FIXED: Add "mt-20" back to the className
       className="relative mt-20 border-t border-white/10 text-white"
-      style={{ backgroundColor: '#021f02' }}
+      style={{ backgroundColor: '#13451b' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

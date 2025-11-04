@@ -47,7 +47,11 @@ const PIE_COLORS = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glass-card p-3 border-none">
+      // 1. CARD BACKGROUND: Set to #13451b
+      <div
+        className="p-3 border-none rounded-md"
+        style={{ backgroundColor: '#13451b' }}
+      >
         <p className="label text-muted-foreground">{label}</p>
         <p className="intro" style={{ color: payload[0].color }}>
           {`${payload[0].name}: ${payload[0].value}`}
@@ -60,21 +64,16 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function SentimentTracker() {
   // --- State ---
-  // Filters
   const [topic, setTopic] = useState('Air Pollution');
   const [days, setDays] = useState('7');
-
-  // Page State
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Data State for 4 components
   const [executiveSummary, setExecutiveSummary] = useState('');
   const [summaryData, setSummaryData] = useState(null);
   const [trendlineData, setTrendlineData] = useState([]);
   const [sourceData, setSourceData] = useState([]);
 
-  // --- API Fetching ---
+  // --- API Fetching (Unchanged) ---
   const handleFetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -85,51 +84,52 @@ export default function SentimentTracker() {
     )}`;
 
     try {
-      const [
-        synthesisRes,
-        summaryRes,
-        trendlineRes,
-        sourceRes,
-      ] = await Promise.all([
-        fetch(`${baseUrl}/synthesis${params}`),
-        fetch(`${baseUrl}/summary${params}`),
-        fetch(`${baseUrl}/trendline${params}`),
-        fetch(`${baseUrl}/source_distribution${params}`),
-      ]);
+      const [synthesisRes, summaryRes, trendlineRes, sourceRes] =
+        await Promise.all([
+          fetch(`${baseUrl}/synthesis${params}`),
+          fetch(`${baseUrl}/summary${params}`),
+          fetch(`${baseUrl}/trendline${params}`),
+          fetch(`${baseUrl}/source_distribution${params}`),
+        ]);
 
-      // Check all responses
       if (
         !synthesisRes.ok ||
         !summaryRes.ok ||
         !trendlineRes.ok ||
         !sourceRes.ok
       ) {
-        throw new Error(
-          'One or more data components failed to load.'
-        );
+        throw new Error('One or more data components failed to load.');
       }
 
-      // Process all data
       const synthesisData = await synthesisRes.json();
       const summaryData = await summaryRes.json();
       const trendlineData = await trendlineRes.json();
       const sourceData = await sourceRes.json();
 
       setExecutiveSummary(synthesisData.executive_summary);
-      
-      // Format summary data for pie chart
+
       setSummaryData([
-        { name: 'Positive', value: summaryData.positive_count, color: PIE_COLORS.positive },
-        { name: 'Negative', value: summaryData.negative_count, color: PIE_COLORS.negative },
-        { name: 'Neutral', value: summaryData.neutral_count, color: PIE_COLORS.neutral },
+        {
+          name: 'Positive',
+          value: summaryData.positive_count,
+          color: PIE_COLORS.positive,
+        },
+        {
+          name: 'Negative',
+          value: summaryData.negative_count,
+          color: PIE_COLORS.negative,
+        },
+        {
+          name: 'Neutral',
+          value: summaryData.neutral_count,
+          color: PIE_COLORS.neutral,
+        },
       ]);
-      
+
       setTrendlineData(trendlineData);
       setSourceData(sourceData);
-
     } catch (err) {
       setError(err.message);
-      // Clear data on error
       setExecutiveSummary('');
       setSummaryData(null);
       setTrendlineData([]);
@@ -137,33 +137,46 @@ export default function SentimentTracker() {
     } finally {
       setIsLoading(false);
     }
-  }, [topic, days]); // Dependencies for useCallback
+  }, [topic, days]);
 
-  // Initial load
   useEffect(() => {
     handleFetchData();
-  }, [handleFetchData]); // Run once on mount
+  }, [handleFetchData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     handleFetchData();
   };
+  // --- End API Fetching ---
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    // 1. PAGE BACKGROUND: Set to #57af50 and text to dark
+    <div
+      className="min-h-screen pb-12 text-gray-900"
+      style={{ backgroundColor: '#57af50' }}
+    >
+      {/* 2. LAYOUT: Removed max-width and mx-auto */}
+      <div className="px-4 sm:px-6 lg:px-8">
+        {/* Header - Added pt-24 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 pt-24"
         >
           <h1 className="text-4xl font-bold mb-4">
-            Public Sentiment <span className="text-gradient-emerald">Tracker</span>
+            Public Sentiment{' '}
+            {/* 3. TEXT: Changed span color to be visible */}
+            <span
+              className="text-gradient-emerald"
+              style={{ color: '#13451b' }}
+            >
+              Tracker
+            </span>
           </h1>
-          <p className="text-muted-foreground text-lg max-w-3xl">
-            Analyze real-time public sentiment on climate topics. Enter a
-            topic and select a timeframe to see the full analysis.
+          {/* 3. TEXT: Changed from text-muted-foreground to dark */}
+          <p className="text-gray-800 text-lg max-w-3xl">
+            Analyze real-time public sentiment on climate topics. Enter a topic
+            and select a timeframe to see the full analysis.
           </p>
         </motion.div>
 
@@ -173,7 +186,11 @@ export default function SentimentTracker() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="glass-card p-6 mb-8">
+          {/* 1. CARD BACKGROUND: Set to #13451b */}
+          <Card
+            className="p-6 mb-8"
+            style={{ backgroundColor: '#13451b' }}
+          >
             <form
               onSubmit={handleSubmit}
               className="flex flex-col md:flex-row gap-4"
@@ -207,7 +224,7 @@ export default function SentimentTracker() {
           </Card>
         </motion.div>
 
-        {/* Error State */}
+        {/* Error State (Kept red) */}
         {error && (
           <Card className="p-6 bg-red-900/50 border border-red-700 text-red-100 flex items-center mb-8">
             <AlertTriangle className="w-6 h-6 mr-4 flex-shrink-0" />
@@ -228,8 +245,12 @@ export default function SentimentTracker() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="glass-card p-6 h-full">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
+              {/* 1. CARD BACKGROUND: Set to #13451b */}
+              <Card
+                className="p-6 h-full"
+                style={{ backgroundColor: '#13451b' }}
+              >
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-white">
                   <BookText className="w-5 h-5 mr-2 text-emerald-400" />
                   Executive Summary
                 </h2>
@@ -253,22 +274,47 @@ export default function SentimentTracker() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Card className="glass-card p-6">
-                <h2 className="text-xl font-semibold mb-6 flex items-center">
+              {/* 1. CARD BACKGROUND: Set to #13451b */}
+              <Card
+                className="p-6"
+                style={{ backgroundColor: '#13451b' }}
+              >
+                <h2 className="text-xl font-semibold mb-6 flex items-center text-white">
                   <TrendingUp className="w-5 h-5 mr-2 text-emerald-400" />
                   Sentiment Trend
                 </h2>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={trendlineData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(255,255,255,0.1)"
+                      />
+                      <XAxis
+                        dataKey="date"
+                        stroke="hsl(var(--muted-foreground))"
+                      />
                       <YAxis stroke="hsl(var(--muted-foreground))" />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend />
-                      <Line type="monotone" dataKey="positive" stroke={PIE_COLORS.positive} />
-                      <Line type="monotone" dataKey="negative" stroke={PIE_COLORS.negative} />
-                      <Line type="monotone" dataKey="neutral" stroke={PIE_COLORS.neutral} />
+                      <Line
+                        type="monotone"
+                        dataKey="positive"
+                        stroke={PIE_COLORS.positive}
+                        activeDot={{ r: 6, fill: 'currentColor' }} // 4. ANIMATION FIX
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="negative"
+                        stroke={PIE_COLORS.negative}
+                        activeDot={{ r: 6, fill: 'currentColor' }} // 4. ANIMATION FIX
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="neutral"
+                        stroke={PIE_COLORS.neutral}
+                        activeDot={{ r: 6, fill: 'currentColor' }} // 4. ANIMATION FIX
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -284,8 +330,12 @@ export default function SentimentTracker() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <Card className="glass-card p-6">
-                <h2 className="text-xl font-semibold mb-4 flex items-center">
+              {/* 1. CARD BACKGROUND: Set to #13451b */}
+              <Card
+                className="p-6"
+                style={{ backgroundColor: '#13451b' }}
+              >
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-white">
                   <PieChartIcon className="w-5 h-5 mr-2 text-emerald-400" />
                   Sentiment Breakdown
                 </h2>
@@ -319,19 +369,37 @@ export default function SentimentTracker() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <Card className="glass-card p-6">
-                <h2 className="text-xl font-semibold mb-6 flex items-center">
+              {/* 1. CARD BACKGROUND: Set to #13451b */}
+              <Card
+                className="p-6"
+                style={{ backgroundColor: '#13451b' }}
+              >
+                <h2 className="text-xl font-semibold mb-6 flex items-center text-white">
                   <Newspaper className="w-5 h-5 mr-2 text-emerald-400" />
                   Source Distribution
                 </h2>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={sourceData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis dataKey="source" type="category" stroke="hsl(var(--muted-foreground))" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="rgba(255,255,255,0.1)"
+                      />
+                      <XAxis
+                        type="number"
+                        stroke="hsl(var(--muted-foreground))"
+                      />
+                      <YAxis
+                        dataKey="source"
+                        type="category"
+                        stroke="hsl(var(--muted-foreground))"
+                      />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="count" name="Articles" fill="hsl(var(--emerald))" />
+                      <Bar
+                        dataKey="count"
+                        name="Articles"
+                        fill="hsl(var(--emerald))"
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

@@ -24,7 +24,7 @@ const HomePage = () => {
         scaleMobile: 1.0,
         // 1. FIXED: Changed from lime green to the theme's emerald color
         color: 0x10b981, 
-        backgroundColor: 0x021f02, // Correct dark green background
+        backgroundColor: 0x13451b, // Correct dark green background
         points: 12.0,
         maxDistance: 22.0,
         spacing: 18.0,
@@ -117,7 +117,7 @@ const HomePage = () => {
       {/* 2. FIXED: Changed background to the site's dark theme */}
       <section
         className="py-20 relative"
-        style={{ backgroundColor: '#11c877' }}
+        style={{ backgroundColor: '#57af50' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -151,7 +151,7 @@ const HomePage = () => {
                   <Link to={feature.link}>
                     <Card
                       className="p-6 h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
-                      style={{ backgroundColor: '#021f02', border: '1px solid #0e3a0f' }}
+                      style={{ backgroundColor: '#13451b', border: '1px solid #0e3a0f' }}
                     >
                       <div
                         className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}
@@ -174,7 +174,8 @@ const HomePage = () => {
       </section>
 
       {/* Footer with dark green background */}
-      <div style={{ backgroundColor: '#021f02' }}>
+      {/* FIXED: Added -mt-20 to the wrapper to cancel the footer's margin */}
+      <div className="-mt-20" style={{ backgroundColor: '#021f02' }}>
         <Footer />
       </div>
     </div>
