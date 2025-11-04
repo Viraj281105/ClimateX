@@ -1,8 +1,10 @@
 import WeatherMap from "../components/WeatherMap";
 import { motion } from 'framer-motion';
-import { Cloud, Droplets, Wind, Leaf } from 'lucide-react';
+// 1. Replaced 'Wind' with 'Thermometer' for the stats
+import { Cloud, Droplets, Leaf, Thermometer } from 'lucide-react'; 
 import { Card } from '@/components/ui/card';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+// 2. Removed unused 'LineChart' and 'Line' imports
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Footer from '@/components/Footer';
 
 const DashboardPage = () => {
@@ -24,7 +26,8 @@ const DashboardPage = () => {
 
   const stats = [
     {
-      icon: Wind,
+      // 1. Corrected icon
+      icon: Thermometer,
       label: 'Temperature',
       value: '32°C',
       trend: '+2.5°C from avg',
@@ -70,7 +73,8 @@ const DashboardPage = () => {
             India <span className="text-gradient-emerald">Climate Dashboard</span>
           </h1>
           <p className="text-muted-foreground text-lg">
-            Real-time climate intelligence and environmental monitoring across India.
+            Real-time climate intelligence and environmental monitoring across
+            India.
           </p>
         </motion.div>
 
@@ -108,13 +112,21 @@ const DashboardPage = () => {
                 <Card key={index} className="glass-card-hover p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-                      <p className={`text-3xl font-bold ${stat.textColor} mb-1`}>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {stat.label}
+                      </p>
+                      <p
+                        className={`text-3xl font-bold ${stat.textColor} mb-1`}
+                      >
                         {stat.value}
                       </p>
-                      <p className="text-xs text-muted-foreground">{stat.trend}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {stat.trend}
+                      </p>
                     </div>
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
+                    <div
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}
+                    >
                       <Icon className="w-6 h-6 text-white" />
                     </div>
                   </div>
@@ -132,18 +144,30 @@ const DashboardPage = () => {
         >
           <Card className="glass-card p-6">
             <h2 className="text-xl font-semibold mb-6">
-              Air Quality Index <span className="text-gradient-emerald">Trend</span>
+              Air Quality Index{' '}
+              <span className="text-gradient-emerald">Trend</span>
             </h2>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="10C%" height="100%">
                 <AreaChart data={aqiData}>
                   <defs>
                     <linearGradient id="aqiGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--emerald))" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(var(--emerald))" stopOpacity={0} />
+                      <stop
+                        offset="5%"
+                        stopColor="hsl(var(--emerald))"
+                        stopOpacity={0.3}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor="hsl(var(--emerald))"
+                        stopOpacity={0}
+                      />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="rgba(255,255,255,0.1)"
+                  />
                   <XAxis
                     dataKey="month"
                     stroke="hsl(var(--muted-foreground))"

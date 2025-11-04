@@ -36,17 +36,20 @@ const AboutPage = () => {
     {
       icon: Target,
       title: 'Evidence-Based',
-      description: 'Every recommendation is backed by rigorous data analysis and scientific research.',
+      description:
+        'Every recommendation is backed by rigorous data analysis and scientific research.',
     },
     {
       icon: Zap,
       title: 'Real-Time Intelligence',
-      description: 'Continuous monitoring and instant insights for proactive climate action.',
+      description:
+        'Continuous monitoring and instant insights for proactive climate action.',
     },
     {
       icon: Users,
       title: 'People-Centric',
-      description: 'Incorporating public sentiment to ensure policies resonate with communities.',
+      description:
+        'Incorporating public sentiment to ensure policies resonate with communities.',
     },
   ];
 
@@ -66,7 +69,9 @@ const AboutPage = () => {
             About <span className="text-gradient-emerald">ClimateX</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-            ClimateX is an AI-powered platform designed to enable evidence-based climate policymaking by integrating real-time data, causal inference, and public sentiment analytics.
+            ClimateX is an AI-powered platform designed to enable evidence-based
+            climate policymaking by integrating real-time data, causal
+            inference, and public sentiment analytics.
           </p>
         </motion.div>
 
@@ -84,7 +89,9 @@ const AboutPage = () => {
                 Our <span className="text-gradient-emerald">Mission</span>
               </h2>
               <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-                To empower policymakers and citizens with real-time climate intelligence, enabling data-driven decisions that lead to sustainable and impactful climate action across India.
+                To empower policymakers and citizens with real-time climate
+                intelligence, enabling data-driven decisions that lead to
+                sustainable and impactful climate action across India.
               </p>
             </div>
           </Card>
@@ -109,7 +116,9 @@ const AboutPage = () => {
                     <Icon className="w-8 h-8 text-white" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">{value.title}</h3>
-                  <p className="text-muted-foreground text-sm">{value.description}</p>
+                  <p className="text-muted-foreground text-sm">
+                    {value.description}
+                  </p>
                 </Card>
               );
             })}
@@ -142,7 +151,9 @@ const AboutPage = () => {
                   </Avatar>
                   <h3 className="font-semibold text-lg mb-1">{member.name}</h3>
                   <p className="text-emerald-400 text-sm mb-3">{member.role}</p>
-                  <p className="text-muted-foreground text-sm flex-1">{member.bio}</p>
+                  <p className="text-muted-foreground text-sm flex-1">
+                    {member.bio}
+                  </p>
                 </Card>
               </motion.div>
             ))}
@@ -158,10 +169,16 @@ const AboutPage = () => {
         >
           <Card className="glass-card p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">
-              Built for the <span className="text-gradient-emerald">Climate Innovation Hackathon</span>
+              Built for the{' '}
+              <span className="text-gradient-emerald">
+                Climate Innovation Hackathon
+              </span>
             </h2>
             <p className="text-muted-foreground max-w-3xl mx-auto">
-              ClimateX was developed as part of a national initiative to leverage technology for climate action. Our platform combines cutting-edge AI, big data analytics, and user-centric design to create a powerful tool for climate intelligence.
+              ClimateX was developed as part of a national initiative to
+              leverage technology for climate action. Our platform combines
+              cutting-edge AI, big data analytics, and user-centric design to
+              create a powerful tool for climate intelligence.
             </p>
           </Card>
         </motion.div>
