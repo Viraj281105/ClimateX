@@ -117,7 +117,7 @@ const HomePage = () => {
       {/* 2. FIXED: Changed background to the site's dark theme */}
       <section
         className="py-20 relative"
-        style={{ backgroundColor: '#021f02' }}
+        style={{ backgroundColor: '#11c877' }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -149,7 +149,10 @@ const HomePage = () => {
                   whileHover={{ scale: 1.05 }}
                 >
                   <Link to={feature.link}>
-                    <Card className="glass-card-hover p-6 h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
+                    <Card
+                      className="p-6 h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+                      style={{ backgroundColor: '#021f02', border: '1px solid #0e3a0f' }}
+                    >
                       <div
                         className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}
                       >
