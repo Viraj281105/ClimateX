@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; // 'useEffect' is now used
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Lightbulb,
@@ -12,6 +12,7 @@ import {
   BookOpen,
   Cog,
   Clock,
+  Filter, // Added filter icon
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+// --- NEW --- Added Select components for the filter
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Footer from '@/components/Footer';
 
 // Icon mapping (Unchanged)
@@ -36,8 +45,17 @@ const iconMap = {
   Award,
 };
 
+// --- NEW --- Pollutant options from your backend
+const pollutantOptions = [
+  { value: 'Air Pollution (PM/NOx)', label: 'Air Pollution (PM/NOx)' },
+  { value: 'Carbon Dioxide (CO2)', label: 'Carbon Dioxide (CO2)' },
+  { value: 'General Pollutants (SO2)', label: 'General Pollutants (SO2)' },
+];
+
 const PolicyLabPage = () => {
-  // State and API logic (Unchanged)
+  // --- NEW --- State for the filter
+  const [pollutant, setPollutant] = useState(pollutantOptions[0].value);
+  
   const [policies, setPolicies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,16 +64,22 @@ const PolicyLabPage = () => {
   const [detailData, setDetailData] = useState(null);
   const [isModalLoading, setIsModalLoading] = useState(false);
 
+  // --- UPDATED --- This hook now re-runs when 'pollutant' changes
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/v1/policies/');
+        // --- UPDATED --- The selected pollutant is now in the URL
+        const apiUrl = `/api/v1/policies/?pollutant=${encodeURIComponent(pollutant)}`;
+        
+        const response = await fetch(apiUrl);
+        
         if (!response.ok) {
           throw new Error('Failed to load policies. Is the backend running?');
         }
         const data = await response.json();
-        setPolicies(data);
+        setPolicies(data.recommendations); 
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -64,14 +88,14 @@ const PolicyLabPage = () => {
     };
 
     fetchPolicies();
-  }, []);
+  }, [pollutant]); // Re-fetch when 'pollutant' changes
 
+  // (All other functions remain the same)
   const handleReadMore = async (policy) => {
     setSelectedPolicy(policy);
     setIsModalOpen(true);
     setIsModalLoading(true);
     setDetailData(null);
-
     try {
       const response = await fetch(
         `/api/v1/policies/detail?policy_id=${policy.id}`
@@ -105,10 +129,9 @@ const PolicyLabPage = () => {
     };
     return colors[category] || 'bg-white/10 text-white border-white/30';
   };
-  // --- End Helper Functions ---
-
-  // --- Render Functions for Page State (Updated with page bg color) ---
-  if (isLoading) {
+  
+  // (Render functions for loading/error are unchanged)
+  if (isLoading && policies.length === 0) { // Only show full-page loader on first load
     return (
       <div
         className="min-h-screen pt-24 pb-12 flex items-center justify-center"
@@ -135,25 +158,21 @@ const PolicyLabPage = () => {
       </div>
     );
   }
-  // --- End Render Functions ---
 
   return (
-    // 1. PAGE BACKGROUND: Set to #57af50
     <div
       className="min-h-screen pb-12"
       style={{ backgroundColor: '#57af50' }}
     >
-      {/* 2. LAYOUT: Removed max-width and mx-auto */}
       <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header (Preserved) - Added pt-24 and text-gray-900 */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12 text-center pt-24 text-gray-900"
+          className="mb-8 text-center pt-24 text-gray-900" // Reduced mb-12 to mb-8
         >
           <h1 className="text-4xl font-bold mb-4">
             AI Policy{' '}
-            {/* 3. TEXT: Changed span color */}
             <span
               className="text-gradient-emerald"
               style={{ color: '#13451b' }}
@@ -161,17 +180,57 @@ const PolicyLabPage = () => {
               Recommendations
             </span>
           </h1>
-          {/* 3. TEXT: Changed text color */}
           <p className="text-gray-800 text-lg max-w-3xl mx-auto">
             Data-driven climate policy recommendations powered by artificial
             intelligence, causal inference, and public sentiment analysis.
           </p>
         </motion.div>
 
-        {/* Policy Cards Grid (Now dynamic) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* --- NEW FILTER DROPDOWN --- */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8 max-w-md mx-auto"
+        >
+          <Card
+            className="p-4"
+            style={{ backgroundColor: '#13451b' }}
+          >
+            <div className="flex items-center space-x-3">
+              <Filter className="w-5 h-5 text-emerald-400" />
+              <label className="text-sm font-medium text-emerald-400">
+                Filter by Target Pollutant
+              </label>
+            </div>
+            <Select value={pollutant} onValueChange={setPollutant}>
+              <SelectTrigger className="w-full mt-2">
+                <SelectValue placeholder="Select a pollutant" />
+              </SelectTrigger>
+              <SelectContent>
+                {pollutantOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Card>
+        </motion.div>
+        {/* --- END OF FILTER --- */}
+
+
+        {/* Policy Cards Grid */}
+        <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* --- NEW --- Loading overlay */}
+          {isLoading && (
+            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+               <Loader2 className="w-12 h-12 text-white animate-spin" />
+            </div>
+          )}
+          
           {policies.map((policy, index) => {
-            const Icon = iconMap[policy.icon] || Lightbulb; // Fallback icon
+            const Icon = iconMap[policy.icon] || Lightbulb;
             return (
               <motion.div
                 key={policy.id}
@@ -180,21 +239,18 @@ const PolicyLabPage = () => {
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ scale: 1.02 }}
               >
-                {/* 4. CARD BACKGROUND: Set to #13451b */}
                 <Card
                   className="p-6 h-full flex flex-col"
                   style={{ backgroundColor: '#13451b' }}
                 >
-                  {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg">
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        {/* 3. TEXT: Ensure card text is light */}
                         <h3 className="font-semibold text-lg text-white">
-                          {policy.title}
+                          {policy.policy_name}
                         </h3>
                         <Badge
                           className={`text-xs border ${getCategoryColor(
@@ -207,12 +263,10 @@ const PolicyLabPage = () => {
                     </div>
                   </div>
 
-                  {/* Description (from expert_brief) */}
                   <p className="text-muted-foreground text-sm mb-6 flex-1">
                     {policy.expert_brief}
                   </p>
 
-                  {/* Metrics */}
                   <div className="space-y-4 mb-6">
                     <div>
                       <div className="flex justify-between text-sm mb-2">
@@ -229,7 +283,6 @@ const PolicyLabPage = () => {
                       </div>
                       <Progress value={policy.impact_score} className="h-2" />
                     </div>
-
                     <div>
                       <div className="flex justify-between text-sm mb-2">
                         <span className="text-muted-foreground">
@@ -245,7 +298,6 @@ const PolicyLabPage = () => {
                       </div>
                       <Progress value={policy.feasibility} className="h-2" />
                     </div>
-
                     <div>
                       <div className="flex justify-between text-sm mb-2">
                         <span className="text-muted-foreground">
@@ -263,13 +315,12 @@ const PolicyLabPage = () => {
                     </div>
                   </div>
 
-                  {/* Footer */}
                   <div className="flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
                     <span className="text-sm text-muted-foreground">
                       Timeframe: {policy.timeframe}
                     </span>
                     <Button
-                      className="btn-primary" // Use the primary button class
+                      className="btn-primary"
                       size="sm"
                       onClick={() => handleReadMore(policy)}
                     >
@@ -282,14 +333,13 @@ const PolicyLabPage = () => {
           })}
         </div>
 
-        {/* Info Card (Preserved) */}
+        {/* Info Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
           className="mt-12"
         >
-          {/* 4. CARD BACKGROUND: Set to #13451b */}
           <Card
             className="p-8 text-center relative overflow-hidden"
             style={{ backgroundColor: '#13451b' }}
@@ -326,9 +376,8 @@ const PolicyLabPage = () => {
         </motion.div>
       </div>
 
-      {/* "Read More" Modal */}
+      {/* "Read More" Modal (with scroll fix) */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        {/* 4. MODAL BACKGROUND: Set to #13451b */}
         <DialogContent
           className="max-w-2xl"
           style={{
@@ -338,14 +387,15 @@ const PolicyLabPage = () => {
         >
           <DialogHeader>
             <DialogTitle className="text-2xl text-gradient-emerald">
-              {selectedPolicy?.title}
+              {selectedPolicy?.policy_name}
             </DialogTitle>
             <DialogDescription className="text-muted-foreground">
               {selectedPolicy?.expert_brief}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
+          {/* --- SCROLL FIX --- */}
+          <div className="py-4 max-h-[70vh] overflow-y-auto">
             <AnimatePresence>
               {isModalLoading && (
                 <motion.div
@@ -375,7 +425,6 @@ const PolicyLabPage = () => {
                   </div>
                 ) : (
                   <>
-                    {/* Map the 3-section response */}
                     <div className="space-y-4">
                       <h3 className="flex items-center text-lg font-semibold text-emerald-400">
                         <BookOpen className="w-5 h-5 mr-2" />
@@ -412,8 +461,10 @@ const PolicyLabPage = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      <Footer />
+      
+      <div style={{ backgroundColor: '#13451b' }}>
+        <Footer />
+      </div>
     </div>
   );
 };

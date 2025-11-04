@@ -2,11 +2,11 @@ import os
 import pandas as pd
 import ollama
 import json
-from fastapi import APIRouter, HTTPException, Query, Body 
+from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel
 from pathlib import Path
 from typing import List, Dict, Optional, Any
-from enum import Enum # <-- New import for dropdown menu
+from enum import Enum
 
 # --- Define User-Friendly Pollutant Mapping (NEW) ---
 class UserPollutant(str, Enum):
@@ -26,7 +26,10 @@ POLLUTANT_MAP = {
 # --- 1. Setup: Load Knowledge Base and Ollama Client (No Functional Change) ---
 try:
     FILE_DIR = Path(__file__).parent
-    ROOT_DIR = FILE_DIR.parents[4]
+    # This path might need adjustment. It assumes this file is 5 levels deep from the root.
+    # e.g., /ClimateX/backend/app/api/v1/endpoints/simulator.py
+    # If your structure is different, you may need ROOT_DIR = FILE_DIR.parents[3] or similar
+    ROOT_DIR = FILE_DIR.parents[4] 
     DB_PATH = ROOT_DIR / "data" / "processed" / "india_policies_featurized_local.csv"
     
     df_knowledge_base = pd.read_csv(DB_PATH)
@@ -34,9 +37,12 @@ try:
     df_knowledge_base = df_knowledge_base[~df_knowledge_base['policy_type'].isin(['ParseError', 'Error'])]
     
     ollama_client = ollama.Client()
-    ollama_client.list()
+    ollama_client.list() # Test connection
     
 except Exception as e:
+    print(f"--- CRITICAL SERVER STARTUP ERROR ---")
+    print(f"Error: {e}")
+    print(f"Could not load dependencies. DB_PATH was: {DB_PATH}")
     df_knowledge_base = None
     ollama_client = None
 
@@ -56,12 +62,61 @@ class PolicySimulationResponse(BaseModel):
     historical_analogies_found: int
     analogies: List[HistoricalAnalogy]
 
-# --- 3. Helper Functions (Only Minor Prompt/Input Changes) ---
+# --- 3. Helper Functions (FIXED) ---
 
 def get_policy_features(policy_content: str) -> Dict[str, str]:
-    # ... (Function remains the same) ...
-    # Omitted for brevity
-    pass 
+    """
+    Uses Ollama (mistral) to classify the policy text into its 'policy_type'
+    and 'action_type' and returns them as a JSON object.
+    """
+    if not ollama_client:
+        return {"policy_type": "Error", "action_type": "LLM client not available"}
+
+    # A specialized prompt to force the LLM to classify the text.
+    prompt = f"""
+    You are a policy classification engine. Your sole purpose is to analyze a policy text
+    and classify it into a 'policy_type' and an 'action_type' from the provided lists.
+    Return ONLY a valid JSON object with the two keys.
+
+    Policy Text to Analyze:
+    "{policy_content}"
+
+    ---
+    Categories:
+    - policy_type: [Renewable Energy, Industrial Regulation, Transportation, Agriculture, Waste Management, Forestry, Market Mechanism, Public Awareness]
+    - action_type: [Subsidies, Ban, Regulation, Investment, R&D, Tax, Public Campaign]
+    ---
+
+    Return your classification as a single JSON object, like this:
+    {{"policy_type": "...", "action_type": "..."}}
+    """
+
+    try:
+        response = ollama_client.generate(
+            model='mistral',
+            prompt=prompt,
+            format='json' # Ask for JSON output
+        )
+        
+        # The response['response'] will be a JSON *string*, e.g., '{"policy_type": "..."}'
+        result_json = response['response'].strip()
+        
+        # Parse the JSON string into a Python dictionary
+        result_dict = json.loads(result_json)
+        
+        # Basic validation
+        if 'policy_type' in result_dict and 'action_type' in result_dict:
+            return result_dict
+        else:
+            # The LLM returned JSON, but with the wrong keys
+            return {"policy_type": "ParseError", "action_type": "Invalid JSON keys"}
+
+    except json.JSONDecodeError:
+        # The LLM's response was not a valid JSON string
+        return {"policy_type": "ParseError", "action_type": "LLM did not return valid JSON"}
+    except Exception as e:
+        # Any other error (e.g., Ollama connection)
+        return {"policy_type": "Error", "action_type": str(e)}
 
 def generate_impact_summary(policy_type: str, action_type: str, target_pollutants: List[str], analogies: List[Dict]) -> str:
     """Updated to include the list of pollutants in the prompt."""
@@ -137,7 +192,7 @@ async def simulate_policy_impact(
     # Convert user-friendly labels to technical labels for the LLM prompt
     technical_targets = [POLLUTANT_MAP[p.value] for p in target_pollutants]
 
-    # Step 1: Featurize the user's policy text
+    # Step 1: Featurize the user's policy text (This will now work)
     features = get_policy_features(policy_text)
     user_policy_type = features.get('policy_type')
     user_action_type = features.get('action_type')

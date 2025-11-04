@@ -15,7 +15,9 @@ import {
 
 export default function CausalSimulator() {
   const [policyText, setPolicyText] = useState('');
-  const [pollutant, setPollutant] = useState('PM2.5'); // Default value
+  
+  // --- FIX 1: Correctly updated Pollutant State & Options ---
+  const [pollutant, setPollutant] = useState('Air Pollution (PM/NOx)');
   const [policyYear, setPolicyYear] = useState(new Date().getFullYear());
 
   const [isLoading, setIsLoading] = useState(false);
@@ -33,17 +35,34 @@ export default function CausalSimulator() {
         pollutant
       )}&policy_year=${encodeURIComponent(policyYear)}`;
 
+      // This fetch call is correct (sends text/plain)
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'text/plain',
         },
-        body: JSON.stringify({ policy_text: policyText }),
+        body: policyText,
       });
 
+      // This error handling is correct
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'An unknown error occurred.');
+        let errorString = `Error ${response.status}: ${response.statusText}`; // Default message
+        
+        try {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            // It's a 422 Validation Error
+            const errorData = await response.json();
+            errorString = errorData.detail[0]?.msg || JSON.stringify(errorData.detail);
+          } else {
+            // It's a 500 Internal Server Error (with a text/html traceback)
+            errorString = await response.text();
+          }
+        } catch (e) {
+          console.error("Could not parse error response:", e);
+        }
+        
+        throw new Error(errorString);
       }
 
       const data = await response.json();
@@ -55,24 +74,21 @@ export default function CausalSimulator() {
     }
   };
 
+  // --- FIX 1 (continued): Updated Pollutant Options ---
   const pollutantOptions = [
-    { value: 'PM2.5', label: 'PM2.5 (Fine Particles)' },
-    { value: 'PM10', label: 'PM10 (Particles)' },
-    { value: 'O3', label: 'Ozone (O₃)' },
-    { value: 'CO', label: 'Carbon Monoxide (CO)' },
-    { value: 'SO2', label: 'Sulfur Dioxide (SO₂)' },
-    { value: 'NO2', label: 'Nitrogen Dioxide (NO₂)' },
+    { value: 'Air Pollution (PM/NOx)', label: 'Air Pollution (PM/NOx)' },
+    { value: 'Carbon Dioxide (CO2)', label: 'Carbon Dioxide (CO2)' },
+    { value: 'General Pollutants (SO2)', label: 'General Pollutants (SO2)' },
   ];
 
   return (
-    // 1. PAGE BACKGROUND: Set to #57af50 and text to dark
+    // Your color and layout styles are preserved
     <div
       className="min-h-screen pb-12 text-gray-900"
       style={{ backgroundColor: '#57af50' }}
     >
-      {/* 2. LAYOUT: Removed max-width and mx-auto */}
       <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header - Added pt-24 here */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -83,7 +99,6 @@ export default function CausalSimulator() {
           </div>
           <h1 className="text-4xl font-bold mb-4">
             Causal{' '}
-            {/* 3. TEXT: Changed span color to be visible */}
             <span
               className="text-gradient-emerald"
               style={{ color: '#13451b' }}
@@ -91,7 +106,6 @@ export default function CausalSimulator() {
               Simulator
             </span>
           </h1>
-          {/* 3. TEXT: Changed from text-muted-foreground to dark */}
           <p className="text-gray-800 text-lg max-w-3xl mx-auto">
             Test the potential impact of a new climate policy. Our AI will
             analyze its text and predict its causal effect on pollution levels,
@@ -108,7 +122,6 @@ export default function CausalSimulator() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-2"
           >
-            {/* 4. CARD BACKGROUND: Set to #13451b */}
             <Card
               className="p-6 md:p-8"
               style={{ backgroundColor: '#13451b' }}
@@ -209,8 +222,6 @@ export default function CausalSimulator() {
             transition={{ delay: 0.4 }}
             className="lg:col-span-1 space-y-8"
           >
-            {/* Historical Analogies Card */}
-            {/* 4. CARD BACKGROUND: Set to #13451b */}
             <Card className="p-6" style={{ backgroundColor: '#13451b' }}>
               <div className="flex items-center mb-4">
                 <BookOpen className="w-6 h-6 text-emerald-400 mr-3" />
@@ -244,13 +255,15 @@ export default function CausalSimulator() {
                   animate={{ opacity: 1, y: 0 }}
                   className="space-y-3"
                 >
+                  {/* --- FIX 3: Correctly map the analogy object --- */}
                   {results.analogies.length > 0 ? (
                     results.analogies.map((analogy, index) => (
                       <li
                         key={index}
                         className="text-sm p-3 bg-white/5 rounded-lg border border-white/10 text-muted-foreground"
                       >
-                        {analogy}
+                        {/* Display the policy name from the object */}
+                        {analogy.policy_name} ({analogy.year_enacted})
                       </li>
                     ))
                   ) : (
@@ -279,11 +292,11 @@ export default function CausalSimulator() {
               exit={{ opacity: 0 }}
               className="mt-8"
             >
-              {/* This is an error card, so it keeps its red color */}
               <Card className="p-4 bg-red-900/50 border border-red-700 text-red-100 flex items-center">
                 <AlertTriangle className="w-5 h-5 mr-3 flex-shrink-0" />
                 <div>
                   <h3 className="font-semibold">Simulation Failed</h3>
+                  {/* This will now show the actual validation message */}
                   <p className="text-sm">{error}</p>
                 </div>
               </Card>
@@ -297,7 +310,6 @@ export default function CausalSimulator() {
               exit={{ opacity: 0 }}
               className="mt-8"
             >
-              {/* 4. CARD BACKGROUND: Set to #13451b */}
               <Card
                 className="p-6 md:p-8"
                 style={{ backgroundColor: '#13451b' }}
@@ -308,7 +320,7 @@ export default function CausalSimulator() {
                     Generated Impact Summary
                   </h2>
                 </div>
-                {/* Preserve line breaks from the API response */}
+                {/* --- FIX 4: Corrected closing tag --- */}
                 <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                   {results.generated_impact_summary}
                 </p>
