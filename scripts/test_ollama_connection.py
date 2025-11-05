@@ -7,5 +7,5 @@ response = client.chat(
     messages=[{"role": "user", "content": "List 3 renewable energy initiatives in India"}]
 )
 
-print("\n✅ Ollama connected successfully!\n")
+print("\n Ollama connected successfully!\n")
 print(response["message"]["content"])

@@ -12,9 +12,9 @@ DetectorFactory.seed = 0
 # --- 1. Load spaCy Model (for English only) ---
 try:
     nlp_en = spacy.load("en_core_web_sm")
-    print("✅ spaCy English model 'en_core_web_sm' loaded.")
+    print(" spaCy English model 'en_core_web_sm' loaded.")
 except OSError:
-    print("❌ spaCy model not found. Please run: python -m spacy download en_core_web_sm")
+    print(" spaCy model not found. Please run: python -m spacy download en_core_web_sm")
     exit()
 
 # --- 2. Define Cleaning Functions ---
@@ -42,7 +42,7 @@ def english_deep_clean(text):
 # --- 3. Main Processing Logic ---
 def process_posts():
     if posts_collection is None:
-        print("❌ Cannot process posts, database not connected.")
+        print(" Cannot process posts, database not connected.")
         return
 
     unprocessed_posts = posts_collection.find({"processed": False})
@@ -76,15 +76,15 @@ def process_posts():
             count += 1
 
         except LangDetectException:
-            print(f"⚠️ Could not detect language for post {post['_id']}, skipping.")
+            print(f" Could not detect language for post {post['_id']}, skipping.")
         except Exception as e:
             print(f"Error processing post {post['_id']}: {e}")
 
     if bulk_operations:
         posts_collection.bulk_write(bulk_operations)
-        print(f"\n✅ Successfully cleaned and updated {count} multilingual posts.")
+        print(f"\n Successfully cleaned and updated {count} multilingual posts.")
     else:
-        print("🤔 No new posts to process.")
+        print(" No new posts to process.")
 
 if __name__ == "__main__":
     process_posts()

@@ -20,9 +20,9 @@ try:
         client_secret=reddit_secret,
         user_agent=reddit_user_agent
     )
-    print("✅ Reddit connection successful.")
+    print(" Reddit connection successful.")
 except Exception as e:
-    print(f"❌ Reddit setup failed: {e}")
+    print(f" Reddit setup failed: {e}")
 
 # --- NewsAPI Setup ---
 news_api_key = os.getenv("NEWS_API_KEY")
@@ -55,14 +55,14 @@ print(f"Tracking {len(topics)} topics in multiple languages...")
 
 # --- Collect Data from Reddit ---
 def collect_from_reddit():
-    print("\n🚀 Collecting posts from Reddit...")
+    print("\n Collecting posts from Reddit...")
     if not reddit:
-        print("❌ Reddit client not initialized. Skipping.")
+        print(" Reddit client not initialized. Skipping.")
         return
 
     for topic in topics:
         try:
-            print(f"🔎 Searching Reddit for: {topic}")
+            print(f" Searching Reddit for: {topic}")
             subreddit = reddit.subreddit("india+climate+environment")
             for submission in subreddit.search(topic, limit=50):
                 post_data = {
@@ -82,13 +82,13 @@ def collect_from_reddit():
                     upsert=True
                 )
         except Exception as e:
-            print(f"❌ Reddit collection failed for {topic}: {e}")
+            print(f" Reddit collection failed for {topic}: {e}")
 
 # --- Collect Data from NewsAPI ---
 def collect_from_newsapi():
-    print("\n📰 Collecting news articles from NewsAPI...")
+    print("\n Collecting news articles from NewsAPI...")
     if not news_api_key:
-        print("❌ NEWS_API_KEY not found. Skipping NewsAPI.")
+        print(" NEWS_API_KEY not found. Skipping NewsAPI.")
         return
 
     for topic in topics:
@@ -123,6 +123,6 @@ def collect_from_newsapi():
 if posts_collection is not None:
     collect_from_reddit()
     collect_from_newsapi()
-    print("\n🎯 Data collection complete. Ready for preprocessing.")
+    print("\n Data collection complete. Ready for preprocessing.")
 else:
-    print("❌ Cannot run collection, database not connected.")
+    print(" Cannot run collection, database not connected.")
