@@ -13,6 +13,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+// --- NEW: Define your backend API's base URL ---
+// For development, we hardcode it.
+// For production, you should use environment variables, e.g.:
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:8000';
+
 export default function CausalSimulator() {
   const [policyText, setPolicyText] = useState('');
   
@@ -31,7 +37,8 @@ export default function CausalSimulator() {
     setResults(null);
 
     try {
-      const apiUrl = `/api/v1/causal/simulate?pollutant=${encodeURIComponent(
+      // --- UPDATED: Prepend the API_BASE_URL to your endpoint ---
+      const apiUrl = `${API_BASE_URL}/api/v1/causal/simulate?target_pollutants=${encodeURIComponent(
         pollutant
       )}&policy_year=${encodeURIComponent(policyYear)}`;
 
@@ -68,7 +75,12 @@ export default function CausalSimulator() {
       const data = await response.json();
       setResults(data);
     } catch (err) {
-      setError(err.message);
+      // --- UPDATED: Handle network errors (like CORS) more explicitly ---
+      if (err instanceof TypeError && err.message === 'Failed to fetch') {
+         setError('Network error. Could not connect to the API. (Did you forget to enable CORS on the backend?)');
+      } else {
+         setError(err.message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +94,7 @@ export default function CausalSimulator() {
   ];
 
   return (
-    // Your color and layout styles are preserved
+    // ... (The rest of your JSX remains exactly the same) ...
     <div
       className="min-h-screen pb-12 text-gray-900"
       style={{ backgroundColor: '#57af50' }}

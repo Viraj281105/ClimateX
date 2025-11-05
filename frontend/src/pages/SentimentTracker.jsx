@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
 import {
   PieChart,
   Pie,
@@ -34,7 +35,11 @@ import {
   Bar,
   Legend,
 } from 'recharts';
+
 import Footer from '@/components/Footer';
+
+// --- NEW: Define your backend API's base URL ---
+const API_BASE_URL = 'http://localhost:8000';
 
 // Colors for the pie chart
 const PIE_COLORS = {
@@ -67,7 +72,7 @@ export default function SentimentTracker() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [executiveSummary, setExecutiveSummary] = useState('');
-  const [summaryData, setSummaryData] = useState([]); // FIX 2
+  const [summaryData, setSummaryData] = useState([]);
   const [trendlineData, setTrendlineData] = useState([]);
   const [sourceData, setSourceData] = useState([]);
 
@@ -75,7 +80,7 @@ export default function SentimentTracker() {
     setIsLoading(true);
     setError(null);
 
-    const baseUrl = '/api/v1/sentiment';
+    const baseUrl = `${API_BASE_URL}/api/v1/sentiment`;
     const params = `?topic=${encodeURIComponent(topic)}&days=${encodeURIComponent(days)}`;
 
     try {
@@ -91,32 +96,20 @@ export default function SentimentTracker() {
       }
 
       const synthesisData = await synthesisRes.json();
-      const summaryData = await summaryRes.json();
+      const summaryDataFetched = await summaryRes.json();
       const trendlineData = await trendlineRes.json();
-      const sourceData_obj = await sourceRes.json();
+      const sourceDataObj = await sourceRes.json();
 
       setExecutiveSummary(synthesisData.executive_summary);
 
       setSummaryData([
-        {
-          name: 'Positive',
-          value: summaryData.positive,
-          color: PIE_COLORS.positive,
-        },
-        {
-          name: 'Negative',
-          value: summaryData.negative,
-          color: PIE_COLORS.negative,
-        },
-        {
-          name: 'Neutral',
-          value: summaryData.neutral,
-          color: PIE_COLORS.neutral,
-        },
+        { name: 'Positive', value: summaryDataFetched.positive, color: PIE_COLORS.positive },
+        { name: 'Negative', value: summaryDataFetched.negative, color: PIE_COLORS.negative },
+        { name: 'Neutral', value: summaryDataFetched.neutral, color: PIE_COLORS.neutral },
       ]);
 
       setTrendlineData(trendlineData);
-      setSourceData(sourceData_obj);
+      setSourceData(sourceDataObj);
     } catch (err) {
       setError(err.message);
       setExecutiveSummary('');
@@ -130,7 +123,7 @@ export default function SentimentTracker() {
 
   useEffect(() => {
     handleFetchData();
-  }, []);
+  }, [handleFetchData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -164,6 +157,7 @@ export default function SentimentTracker() {
                 placeholder="Enter a topic (e.g., Solar Power, EV)"
                 className="flex-1"
               />
+
               <Select value={days} onValueChange={setDays}>
                 <SelectTrigger className="w-full md:w-[180px]">
                   <SelectValue placeholder="Select days" />
@@ -174,6 +168,7 @@ export default function SentimentTracker() {
                   <SelectItem value="90">Last 90 Days</SelectItem>
                 </SelectContent>
               </Select>
+
               <Button type="submit" className="btn-primary" disabled={isLoading}>
                 {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
                 Run Analysis
@@ -273,7 +268,15 @@ export default function SentimentTracker() {
                 <div className="h-60">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie data={summaryData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8">
+                      <Pie
+                        data={summaryData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#8884d8"
+                      >
                         {summaryData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
@@ -298,14 +301,12 @@ export default function SentimentTracker() {
                     <BarChart data={sourceData} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                       <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis
-                        dataKey="source"
-                        type="category"
-                        stroke="hsl(var(--muted-foreground))"
-                        width={80}
-                      />
-                      <Tooltip />
-                      <Bar dataKey="count" name="Articles" fill="hsl(var(--emerald))" />
+                      <YAxis dataKey="source" type="category" stroke="hsl(var(--muted-foreground))" width={80} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Bar dataKey="positive" name="Positive" stackId="a" fill={PIE_COLORS.positive} />
+                      <Bar dataKey="neutral" name="Neutral" stackId="a" fill={PIE_COLORS.neutral} />
+                      <Bar dataKey="negative" name="Negative" stackId="a" fill={PIE_COLORS.negative} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -314,6 +315,7 @@ export default function SentimentTracker() {
           </div>
         </div>
       </div>
+
       <div style={{ backgroundColor: '#13451b' }}>
         <Footer />
       </div>

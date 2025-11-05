@@ -25,7 +25,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-// --- NEW --- Added Select components for the filter
 import {
   Select,
   SelectContent,
@@ -34,6 +33,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import Footer from '@/components/Footer';
+
+// --- NEW: Define your backend API's base URL ---
+const API_BASE_URL = 'http://localhost:8000';
 
 // Icon mapping (Unchanged)
 const iconMap = {
@@ -70,7 +72,7 @@ const PolicyLabPage = () => {
       try {
         setIsLoading(true);
         // --- UPDATED --- The selected pollutant is now in the URL
-        const apiUrl = `/api/v1/policies/?pollutant=${encodeURIComponent(pollutant)}`;
+        const apiUrl = `${API_BASE_URL}/api/v1/policies/?pollutant=${encodeURIComponent(pollutant)}`;
         
         const response = await fetch(apiUrl);
         
@@ -97,8 +99,9 @@ const PolicyLabPage = () => {
     setIsModalLoading(true);
     setDetailData(null);
     try {
+      // --- UPDATED: Prepend API_BASE_URL ---
       const response = await fetch(
-        `/api/v1/policies/detail?policy_id=${policy.id}`
+        `${API_BASE_URL}/api/v1/policies/detail?policy_id=${policy.id}`
       );
       if (!response.ok) {
         throw new Error('Failed to load policy details.');
@@ -225,7 +228,7 @@ const PolicyLabPage = () => {
           {/* --- NEW --- Loading overlay */}
           {isLoading && (
             <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
-               <Loader2 className="w-12 h-12 text-white animate-spin" />
+                <Loader2 className="w-12 h-12 text-white animate-spin" />
             </div>
           )}
           
