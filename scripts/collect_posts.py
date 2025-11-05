@@ -20,36 +20,49 @@ try:
         client_secret=reddit_secret,
         user_agent=reddit_user_agent
     )
-    print("✅ Reddit connection successful.")
+    print(" Reddit connection successful.")
 except Exception as e:
-    print(f"❌ Reddit setup failed: {e}")
+    print(f" Reddit setup failed: {e}")
 
 # --- NewsAPI Setup ---
 news_api_key = os.getenv("NEWS_API_KEY")
 news_url = "https://newsapi.org/v2/everything"
 
-# --- Topics to Search ---
+# --- Topics to Search (Expanded List) ---
 topics = [
-    "climate change policy india",
-    "renewable energy india",
-    "electric vehicles india",
-    "carbon tax india",
-    "green energy india"
+    # --- English ---
+    "climate change policy india", "renewable energy india", "electric vehicles india",
+    "carbon tax india", "green energy india", "national solar mission",
+    "net zero india", "coal mining india", "transport emissions india",
+    "highway policy india", "bharatmala project", "smart cities mission india",
+    "water management india", "ganga action plan", "national water mission",
+    "agricultural subsidies india", "river linking project india",
+    "industrial pollution india", "air quality india", "waste management india",
+    "NITI Aayog environment", "Ministry of Environment Forest and Climate Change",
+
+    # --- Hindi (Devanagari) ---
+    "जलवायु परिवर्तन भारत", # climate change india
+    "अक्षय ऊर्जा भारत",      # renewable energy india
+    "इलेक्ट्रिक वाहन भारत",  # electric vehicles india
+    "प्रदूषण नियंत्रण भारत", # pollution control india
+    "नमामि गंगे",           # namami gange (ganga action plan)
+    "स्मार्ट सिटी मिशन",     # smart city mission
+    "जल जीवन मिशन"           # jal jeevan mission (water mission)
 ]
 
 print("🌎 ClimateX Data Collector Started")
-print("------------------------------------")
+print(f"Tracking {len(topics)} topics in multiple languages...")
 
 # --- Collect Data from Reddit ---
 def collect_from_reddit():
-    print("\n🚀 Collecting posts from Reddit...")
+    print("\n Collecting posts from Reddit...")
     if not reddit:
-        print("❌ Reddit client not initialized. Skipping.")
+        print(" Reddit client not initialized. Skipping.")
         return
 
     for topic in topics:
         try:
-            print(f"🔎 Searching Reddit for: {topic}")
+            print(f" Searching Reddit for: {topic}")
             subreddit = reddit.subreddit("india+climate+environment")
             for submission in subreddit.search(topic, limit=50):
                 post_data = {
@@ -58,7 +71,6 @@ def collect_from_reddit():
                     "post_id": submission.id,
                     "title": submission.title,
                     "url": submission.url,
-                    # --- FIX: Standardize date to a datetime object ---
                     "created_at": datetime.utcfromtimestamp(submission.created_utc),
                     "content": submission.selftext,
                     "processed": False,
@@ -70,17 +82,18 @@ def collect_from_reddit():
                     upsert=True
                 )
         except Exception as e:
-            print(f"❌ Reddit collection failed for {topic}: {e}")
+            print(f" Reddit collection failed for {topic}: {e}")
 
 # --- Collect Data from NewsAPI ---
 def collect_from_newsapi():
-    print("\n📰 Collecting news articles from NewsAPI...")
+    print("\n Collecting news articles from NewsAPI...")
     if not news_api_key:
-        print("❌ NEWS_API_KEY not found. Skipping NewsAPI.")
+        print(" NEWS_API_KEY not found. Skipping NewsAPI.")
         return
 
     for topic in topics:
-        params = { "q": topic, "apiKey": news_api_key, "language": "en", "pageSize": 50 }
+        # --- CHANGE: Removed language="en" to get all languages ---
+        params = { "q": topic, "apiKey": news_api_key, "pageSize": 50 }
         response = requests.get(news_url, params=params)
         data = response.json()
 
@@ -92,11 +105,11 @@ def collect_from_newsapi():
                     "post_id": article["url"],
                     "title": article["title"],
                     "url": article["url"],
-                    # --- FIX: Standardize date to a datetime object ---
                     "created_at": datetime.strptime(article["publishedAt"], "%Y-%m-%dT%H:%M:%SZ"),
                     "content": article.get("content", ""),
                     "processed": False,
-                    "sentiment": None
+                    "sentiment": None,
+                    "language": None # Add a field for language
                 }
                 posts_collection.update_one(
                     {"post_id": article["url"]},
@@ -110,6 +123,6 @@ def collect_from_newsapi():
 if posts_collection is not None:
     collect_from_reddit()
     collect_from_newsapi()
-    print("\n🎯 Data collection complete. Ready for preprocessing.")
+    print("\n Data collection complete. Ready for preprocessing.")
 else:
-    print("❌ Cannot run collection, database not connected.")
+    print(" Cannot run collection, database not connected.")
