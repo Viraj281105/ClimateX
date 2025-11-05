@@ -22,8 +22,9 @@ const HomePage = () => {
         minWidth: 200.0,
         scale: 1.0,
         scaleMobile: 1.0,
-        color: 0x95ea30,          // neon green lines
-        backgroundColor: 0x021f02, // dark green background
+        // 1. FIXED: Changed from lime green to the theme's emerald color
+        color: 0x10b981, 
+        backgroundColor: 0x13451b, // Correct dark green background
         points: 12.0,
         maxDistance: 22.0,
         spacing: 18.0,
@@ -32,7 +33,10 @@ const HomePage = () => {
 
     return () => {
       try {
-        if (vantaEffect.current && typeof vantaEffect.current.destroy === 'function') {
+        if (
+          vantaEffect.current &&
+          typeof vantaEffect.current.destroy === 'function'
+        ) {
           vantaEffect.current.destroy();
         }
       } catch (err) {
@@ -47,28 +51,32 @@ const HomePage = () => {
     {
       icon: TrendingUp,
       title: 'Climate Dashboard',
-      description: 'Real-time weather & emissions tracking across India with interactive visualizations.',
+      description:
+        'Real-time weather & emissions tracking across India with interactive visualizations.',
       color: 'from-emerald-500 to-teal-500',
       link: '/dashboard',
     },
     {
       icon: Brain,
       title: 'Causal Simulator',
-      description: 'Predict policy impact using advanced AI and causal inference models.',
+      description:
+        'Predict policy impact using advanced AI and causal inference models.',
       color: 'from-cyan-500 to-blue-500',
       link: '/causal-simulator',
     },
     {
       icon: MessageSquare,
       title: 'Sentiment Tracker',
-      description: 'Analyze public opinion on climate policies with real-time sentiment analysis.',
+      description:
+        'Analyze public opinion on climate policies with real-time sentiment analysis.',
       color: 'from-amber-500 to-orange-500',
       link: '/sentiment-tracker',
     },
     {
       icon: Beaker,
       title: 'Policy Lab',
-      description: 'Adaptive AI recommendations for evidence-based climate policymaking.',
+      description:
+        'Adaptive AI recommendations for evidence-based climate policymaking.',
       color: 'from-emerald-500 to-cyan-500',
       link: '/policy-lab',
     },
@@ -80,7 +88,7 @@ const HomePage = () => {
       <section
         ref={vantaRef}
         className="relative min-h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden pt-16"
-        style={{ backgroundColor: '#021f02' }}
+        style={{ backgroundColor: '#021f02' }} // Fallback background
       >
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -91,31 +99,40 @@ const HomePage = () => {
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight">
               <span>ClimateX</span>
               <br />
-              <span className="text-emerald-400">Real-Time Climate Intelligence</span>
+              <span className="text-emerald-400">
+                Real-Time Climate Intelligence
+              </span>
               <br />
               <span>for India</span>
             </h1>
             <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-              Empowering policymakers with AI insights, predictive modeling, and real-time data for sustainable climate action.
+              Empowering policymakers with AI insights, predictive modeling, and
+              real-time data for sustainable climate action.
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 relative" style={{ backgroundColor: '#11c877' }}>
+      {/* 2. FIXED: Changed background to the site's dark theme */}
+      <section
+        className="py-20 relative"
+        style={{ backgroundColor: '#57af50' }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">
               Powerful Climate Tools
             </h2>
-
-            <p className="text-lg max-w-2xl mx-auto text-white">
-              Comprehensive suite of AI-powered tools for climate intelligence and policymaking.
+            {/* 3. FIXED: Changed text to gray-300 for consistency */}
+            <p className="text-lg max-w-2xl mx-auto text-gray-300">
+              Comprehensive suite of AI-powered tools for climate intelligence
+              and policymaking.
             </p>
           </motion.div>
 
@@ -127,16 +144,26 @@ const HomePage = () => {
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ scale: 1.05 }}
                 >
                   <Link to={feature.link}>
-                    <Card className="glass-card-hover p-6 h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}>
+                    <Card
+                      className="p-6 h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+                      style={{ backgroundColor: '#13451b', border: '1px solid #0e3a0f' }}
+                    >
+                      <div
+                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}
+                      >
                         <Icon className="w-7 h-7 text-white" />
                       </div>
-                      <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
-                      <p className="text-sm text-white/90">{feature.description}</p>
+                      <h3 className="text-xl font-semibold mb-2 text-white">
+                        {feature.title}
+                      </h3>
+                      <p className="text-sm text-white/90">
+                        {feature.description}
+                      </p>
                     </Card>
                   </Link>
                 </motion.div>
@@ -147,7 +174,8 @@ const HomePage = () => {
       </section>
 
       {/* Footer with dark green background */}
-      <div style={{ backgroundColor: '#021f02' }}>
+      {/* FIXED: Added -mt-20 to the wrapper to cancel the footer's margin */}
+      <div className="-mt-20" style={{ backgroundColor: '#021f02' }}>
         <Footer />
       </div>
     </div>

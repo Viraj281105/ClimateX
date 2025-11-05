@@ -1,11 +1,11 @@
 import { Cloud, Github, Twitter, Linkedin } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   return (
     <footer
+      // FIXED: Add "mt-20" back to the className
       className="relative mt-20 border-t border-white/10 text-white"
-      style={{ backgroundColor: '#021f02' }}
+      style={{ backgroundColor: '#13451b' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -18,7 +18,9 @@ export const Footer = () => {
               <span className="text-xl font-bold text-white">ClimateX</span>
             </div>
             <p className="text-gray-300 text-sm max-w-md">
-              Real-Time Climate Intelligence for India. Empowering policymakers with AI insights, predictive modeling, and data-driven solutions for sustainable climate action.
+              Real-Time Climate Intelligence for India. Empowering policymakers
+              with AI insights, predictive modeling, and data-driven solutions
+              for sustainable climate action.
             </p>
           </div>
 
@@ -55,10 +57,16 @@ export const Footer = () => {
               © 2025 ClimateX | Built for Climate Innovation Hackathon
             </p>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-400 hover:text-emerald-400 text-sm transition-colors">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-emerald-400 text-sm transition-colors"
+              >
                 Privacy Policy
               </a>
-              <a href="#" className="text-gray-400 hover:text-emerald-400 text-sm transition-colors">
+              <a
+                href="#"
+                className="text-gray-400 hover:text-emerald-400 text-sm transition-colors"
+              >
                 Terms of Service
               </a>
             </div>

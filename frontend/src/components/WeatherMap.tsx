@@ -1,15 +1,21 @@
 import React, { useState } from "react";
-import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+// Removed 'LayersControl' as it was not used
+import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { FaCloud, FaCloudRain, FaWind, FaTemperatureHigh, FaBolt, FaSnowflake } from "react-icons/fa";
-
-
-
-
-
+import {
+  FaCloud,
+  FaCloudRain,
+  FaWind,
+  FaTemperatureHigh,
+  FaBolt,
+  FaSnowflake,
+} from "react-icons/fa";
 
 const WeatherMap: React.FC = () => {
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
+
+  // Note: Ensure REACT_APP_WEATHER_API_KEY is set in your .env file
+  // or the weather layer will not load.
 
   const puneCoords: [number, number] = [18.5204, 73.8567];
   const [activeLayer, setActiveLayer] = useState<string>("temp_new");
@@ -33,13 +39,15 @@ const WeatherMap: React.FC = () => {
           top: 10,
           left: "50%",
           transform: "translateX(-50%)",
-          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          // Matched color to project's dark green theme (#021f02)
+          backgroundColor: "rgba(2, 31, 2, 0.7)",
           borderRadius: "12px",
           padding: "8px 12px",
           zIndex: 1000,
           display: "flex",
           gap: "12px",
           backdropFilter: "blur(6px)",
+          border: "1px solid rgba(255, 255, 255, 0.1)", // Subtle border
         }}
       >
         {layers.map((layer) => (
@@ -48,13 +56,20 @@ const WeatherMap: React.FC = () => {
             onClick={() => setActiveLayer(layer.id)}
             title={layer.name}
             style={{
-              color: activeLayer === layer.id ? "#00e0a8" : "white",
+              // Matched active color to emerald-400 (#34d399)
+              color: activeLayer === layer.id ? "#34d399" : "white",
               fontSize: "20px",
-              background: activeLayer === layer.id ? "rgba(0, 255, 150, 0.15)" : "transparent",
+              // Matched active bg to bg-emerald-500/20
+              background:
+                activeLayer === layer.id
+                  ? "rgba(16, 185, 129, 0.2)"
+                  : "transparent",
               border: "none",
               cursor: "pointer",
               padding: "6px 10px",
               borderRadius: "8px",
+              // Added transition for smooth animation
+              transition: "all 0.2s ease-in-out",
             }}
           >
             {layer.icon}
@@ -66,14 +81,21 @@ const WeatherMap: React.FC = () => {
       <MapContainer
         center={puneCoords}
         zoom={6}
-        style={{ height: "500px", width: "100%", borderRadius: "10px", overflow: "hidden" }}
+        style={{
+          height: "500px",
+          width: "100%",
+          borderRadius: "10px",
+          overflow: "hidden",
+        }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          // Using a dark theme for the base map to better match the site
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
 
         <TileLayer
+          key={activeLayer} // Adding key ensures layer re-renders on change
           url={`https://tile.openweathermap.org/map/${activeLayer}/{z}/{x}/{y}.png?appid=${API_KEY}`}
           opacity={0.7}
         />
