@@ -97,6 +97,15 @@ code {
     }
     body {
         @apply bg-background text-foreground;
+        /* Ensure body has no default margins/padding that could interfere */
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden; /* Prevents horizontal scroll if content overflows */
+        /* * REMOVED: background-color: #2a3d2a;
+         * This was overriding your theme's default background.
+         * The #2a3d2a color is now set *only* on the hero section
+         * in your HomePage.jsx file, which is correct.
+        */
     }
 }
 
@@ -251,3 +260,25 @@ code {
         border-bottom-color: inherit;
     }
 }
+
+
+/* --- START OF CORRECTED HERO VIDEO BACKGROUND CSS --- */
+
+/* This targets the Hero Section itself */
+.homepage-hero-section {
+  position: relative; /* CRITICAL: Allows absolute positioning of child video */
+  overflow: hidden;   /* Hides any video content that extends beyond the section boundaries */
+}
+
+/* This styles the video to fill only the Hero Section */
+.hero-background-video {
+  position: absolute; /* Positions the video relative to its parent (.homepage-hero-section) */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the video covers the entire section without distortion */
+  z-index: 0;      /* Places the video behind all other content within the hero section */
+}
+
+/* --- END OF CORRECTED HERO VIDEO BACKGROUND CSS --- */

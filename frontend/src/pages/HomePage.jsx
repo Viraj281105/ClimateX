@@ -1,51 +1,17 @@
-import { useEffect, useRef } from 'react';
+// Removed Vanta.js imports and code, as previously discussed, since we're using video
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Brain, MessageSquare, Beaker, TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import Footer from '@/components/Footer';
-import * as THREE from 'three';
+// No need for 'useEffect' or 'useRef' if Vanta.js is completely removed
+// import { useEffect, useRef } from 'react'; // REMOVE if Vanta.js is fully gone
 
 const HomePage = () => {
-  const vantaRef = useRef(null);
-  const vantaEffect = useRef(null);
-
-  useEffect(() => {
-    if (window.VANTA && window.VANTA.TOPOLOGY && vantaRef.current) {
-      vantaEffect.current = window.VANTA.TOPOLOGY({
-        el: vantaRef.current,
-        THREE: window.THREE || THREE,
-        mouseControls: true,
-        touchControls: true,
-        gyroControls: false,
-        minHeight: 200.0,
-        minWidth: 200.0,
-        scale: 1.0,
-        scaleMobile: 1.0,
-        // 1. FIXED: Changed from lime green to the theme's emerald color
-        color: 0x10b981, 
-        backgroundColor: 0x13451b, // Correct dark green background
-        points: 12.0,
-        maxDistance: 22.0,
-        spacing: 18.0,
-      });
-    }
-
-    return () => {
-      try {
-        if (
-          vantaEffect.current &&
-          typeof vantaEffect.current.destroy === 'function'
-        ) {
-          vantaEffect.current.destroy();
-        }
-      } catch (err) {
-        console.warn('Vanta cleanup skipped safely:', err);
-      } finally {
-        vantaEffect.current = null;
-      }
-    };
-  }, []);
+  // REMOVE all Vanta.js related refs and useEffect.
+  // const vantaRef = useRef(null);
+  // const vantaEffect = useRef(null);
+  // useEffect(() => { ... });
 
   const features = [
     {
@@ -83,13 +49,25 @@ const HomePage = () => {
   ];
 
   return (
+    // Reverted to a simple div wrapper for the whole page.
+    // The min-h-screen is good to ensure it takes full height.
     <div className="min-h-screen">
-      {/* Hero Section with Vanta Background */}
+      
+      {/* 1. Hero Section: This is where the video will live */}
       <section
-        ref={vantaRef}
-        className="relative min-h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden pt-16"
-        style={{ backgroundColor: '#021f02' }} // Fallback background
+        // Added 'homepage-hero-section' class for specific video styling
+        className="relative min-h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden pt-16 homepage-hero-section"
+        // Set the background color directly here. This must match your video's background.
+        style={{ backgroundColor: '#13451b' }} 
       >
+        {/* 2. Place the video tag directly inside the Hero section */}
+        <video autoPlay loop muted playsInline className="hero-background-video">
+          {/* Ensure this path is correct: /background-video.mp4 needs to be in your 'public' folder */}
+          <source src="/background-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* 3. This div contains all your actual content (text, etc.) and needs z-index above the video */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -113,11 +91,11 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
-      {/* 2. FIXED: Changed background to the site's dark theme */}
+      {/* 4. Features Section: Keep its original background and styling */}
       <section
         className="py-20 relative"
-        style={{ backgroundColor: '#57af50' }}
+        // This was '#57af50' in your original code. Let's keep it.
+        style={{ backgroundColor: '#57af50' }} 
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -129,7 +107,6 @@ const HomePage = () => {
             <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">
               Powerful Climate Tools
             </h2>
-            {/* 3. FIXED: Changed text to gray-300 for consistency */}
             <p className="text-lg max-w-2xl mx-auto text-gray-300">
               Comprehensive suite of AI-powered tools for climate intelligence
               and policymaking.
@@ -173,8 +150,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Footer with dark green background */}
-      {/* FIXED: Added -mt-20 to the wrapper to cancel the footer's margin */}
+      {/* 5. Footer: Keep its original background and styling */}
       <div className="-mt-20" style={{ backgroundColor: '#021f02' }}>
         <Footer />
       </div>
