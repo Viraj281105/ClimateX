@@ -1,0 +1,70 @@
+
+--- collect_posts.py started at 2025-11-05 13:02:33.216075 ---
+
+⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\db_connect.py", line 17, in <module>
+    print("\u2705 MongoDB connection successful.")
+  File "C:\Users\Harsh Jain\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\collect_posts.py", line 6, in <module>
+    from db_connect import posts_collection # <-- IMPORT the collection
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\db_connect.py", line 20, in <module>
+    print(f"\u274c MongoDB connection failed: {e}")
+  File "C:\Users\Harsh Jain\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+
+--- preprocess_posts.py started at 2025-11-05 13:02:35.026394 ---
+
+⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\db_connect.py", line 17, in <module>
+    print("\u2705 MongoDB connection successful.")
+  File "C:\Users\Harsh Jain\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\preprocess_posts.py", line 5, in <module>
+    from db_connect import posts_collection
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\db_connect.py", line 20, in <module>
+    print(f"\u274c MongoDB connection failed: {e}")
+  File "C:\Users\Harsh Jain\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+
+--- discover_new_topics.py started at 2025-11-05 13:02:50.180260 ---
+
+⚠️ Errors:
+Traceback (most recent call last):
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\db_connect.py", line 17, in <module>
+    print("\u2705 MongoDB connection successful.")
+  File "C:\Users\Harsh Jain\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\discover_new_topics.py", line 5, in <module>
+    from db_connect import posts_collection
+  File "C:\Users\Harsh Jain\Desktop\PROJECTS\ClimateX\scripts\db_connect.py", line 20, in <module>
+    print(f"\u274c MongoDB connection failed: {e}")
+  File "C:\Users\Harsh Jain\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
