@@ -54,10 +54,10 @@ const AboutPage = () => {
   ];
 
   return (
-    // 1. PAGE BACKGROUND: Set to #57af50 and text to dark
+    // 1. PAGE BACKGROUND: Set to #CCF0B9
     <div
       className="min-h-screen pb-12 text-gray-900"
-      style={{ backgroundColor: '#57af50' }}
+      style={{ backgroundColor: '#CCF0B9' }}
     >
       {/* 2. LAYOUT: Removed max-width and mx-auto */}
       <div className="px-4 sm:px-6 lg:px-8">
@@ -72,7 +72,7 @@ const AboutPage = () => {
           </div>
           <h1 className="text-4xl font-bold mb-4">
             About{' '}
-            {/* 3. TEXT: Changed span color */}
+            {/* 3. TEXT: Dark accent color looks good on light green bg */}
             <span
               className="text-gradient-emerald"
               style={{ color: '#13451b' }}
@@ -80,7 +80,7 @@ const AboutPage = () => {
               ClimateX
             </span>
           </h1>
-          {/* 3. TEXT: Changed text color */}
+          {/* 3. TEXT: Already dark, looks good */}
           <p className="text-gray-800 text-lg max-w-3xl mx-auto">
             ClimateX is an AI-powered platform designed to enable evidence-based
             climate policymaking by integrating real-time data, causal
@@ -95,18 +95,21 @@ const AboutPage = () => {
           transition={{ delay: 0.2 }}
           className="mb-16"
         >
-          {/* 4. CARD BACKGROUND: Set to #13451b */}
+          {/* 4. CARD BACKGROUND: Set to #FFFFFF */}
           <Card
             className="p-8 md:p-12 text-center relative overflow-hidden"
-            style={{ backgroundColor: '#13451b' }}
+            style={{ backgroundColor: '#FFFFFF' }}
           >
             <div className="absolute inset-0 gradient-animated opacity-10" />
             <div className="relative z-10">
-              {/* 3. TEXT: Ensure text inside card is light */}
-              <h2 className="text-3xl font-bold mb-4 text-white">
-                Our <span className="text-gradient-emerald">Mission</span>
+              {/* 3. TEXT: Changed text inside card to dark */}
+              <h2 className="text-3xl font-bold mb-4 text-gray-900">
+                Our{' '}
+                <span style={{ color: '#13451b' }}>
+                  Mission
+                </span>
               </h2>
-              <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+              <p className="text-gray-700 text-lg max-w-3xl mx-auto">
                 To empower policymakers and citizens with real-time climate
                 intelligence, enabling data-driven decisions that lead to
                 sustainable and impactful climate action across India.
@@ -135,19 +138,19 @@ const AboutPage = () => {
             {values.map((value, index) => {
               const Icon = value.icon;
               return (
-                // 4. CARD BACKGROUND: Set to #13451b
+                // 4. CARD BACKGROUND: Set to #FFFFFF
                 <Card
                   key={index}
                   className="p-6 text-center"
-                  style={{ backgroundColor: '#13451b' }}
+                  style={{ backgroundColor: '#FFFFFF' }}
                 >
                   <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg mb-4">
                     <Icon className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-white">
+                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
                     {value.title}
                   </h3>
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-gray-700 text-sm">
                     {value.description}
                   </p>
                 </Card>
@@ -180,21 +183,22 @@ const AboutPage = () => {
                 transition={{ delay: 0.5 + index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
               >
-                {/* 4. CARD BACKGROUND: Set to #13451b */}
+                {/* 4. CARD BACKGROUND: Set to #FFFFFF */}
                 <Card
                   className="p-6 text-center h-full flex flex-col"
-                  style={{ backgroundColor: '#13451b' }}
+                  style={{ backgroundColor: '#FFFFFF' }}
                 >
                   <Avatar className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-emerald-500 to-cyan-500">
                     <AvatarFallback className="text-white text-xl font-bold">
                       {member.initials}
                     </AvatarFallback>
                   </Avatar>
-                  <h3 className="font-semibold text-lg mb-1 text-white">
+                  <h3 className="font-semibold text-lg mb-1 text-gray-900">
                     {member.name}
                   </h3>
-                  <p className="text-emerald-400 text-sm mb-3">{member.role}</p>
-                  <p className="text-muted-foreground text-sm flex-1">
+                  {/* Updated role color for better readability on white */}
+                  <p className="text-emerald-700 text-sm mb-3">{member.role}</p>
+                  <p className="text-gray-700 text-sm flex-1">
                     {member.bio}
                   </p>
                 </Card>
@@ -210,18 +214,18 @@ const AboutPage = () => {
           transition={{ delay: 0.8 }}
           className="mt-16"
         >
-          {/* 4. CARD BACKGROUND: Set to #13451b */}
+          {/* 4. CARD BACKGROUND: Set to #FFFFFF */}
           <Card
             className="p-8 text-center"
-            style={{ backgroundColor: '#13451b' }}
+            style={{ backgroundColor: '#FFFFFF' }}
           >
-            <h2 className="text-2xl font-bold mb-4 text-white">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">
               Built for the{' '}
-              <span className="text-gradient-emerald">
+              <span style={{ color: '#13451b' }}>
                 Climate Innovation Hackathon
               </span>
             </h2>
-            <p className="text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-gray-700 max-w-3xl mx-auto">
               ClimateX was developed as part of a national initiative to
               leverage technology for climate action. Our platform combines
               cutting-edge AI, big data analytics, and user-centric design to
@@ -231,8 +235,8 @@ const AboutPage = () => {
         </motion.div>
       </div>
 
-      {/* 5. FOOTER: Wrapped in dark bg div */}
-      <div style={{ backgroundColor: '#13451b' }}>
+      {/* 5. FOOTER: Wrapped in main #CCF0B9 bg div */}
+      <div style={{ backgroundColor: '#CCF0B9' }}>
         <Footer />
       </div>
     </div>

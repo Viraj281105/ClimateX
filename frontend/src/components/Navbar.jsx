@@ -20,22 +20,21 @@ export const Navbar = () => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      // Use Framer Motion's 'transition' prop for a smoother animation
-      // instead of a conflicting CSS 'transition' in the className.
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="fixed top-0 left-0 right-0 z-50 bg-[#13451b] shadow-md"
+      // Updated main background color
+      className="fixed top-0 left-0 right-0 z-50 bg-[#90bd85] shadow-md"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left side: App name */}
+          {/* Left side: App name - Updated text color */}
           <Link
             to="/"
-            className="text-white text-xl font-bold tracking-wide hover:text-emerald-400 transition-colors"
+            className="text-gray-800 text-xl font-bold tracking-wide hover:text-gray-600 transition-colors"
           >
             ClimateX
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Updated text, active, and hover colors */}
           <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
               <Link
@@ -43,8 +42,8 @@ export const Navbar = () => {
                 to={link.path}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   location.pathname === link.path
-                    ? 'bg-emerald-500/20 text-emerald-400'
-                    : 'text-white hover:text-emerald-400 hover:bg-white/10'
+                    ? 'bg-black/10 text-gray-900' // New Active state
+                    : 'text-gray-700 hover:bg-black/5' // New Inactive state
                 }`}
               >
                 {link.name}
@@ -52,10 +51,10 @@ export const Navbar = () => {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Updated icon color and hover */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
+            className="md:hidden p-2 rounded-lg hover:bg-black/10 transition-colors text-gray-800"
           >
             {isMobileMenuOpen ? (
               <X className="w-6 h-6" />
@@ -66,14 +65,15 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Updated to be a white "card" */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-[#021f02] border-t border-white/10"
+            // Changed to 'bg-white' to act as a card, with a subtle border
+            className="md:hidden bg-white border-t border-gray-200"
           >
             <div className="px-4 py-4 space-y-2">
               {navLinks.map((link) => (
@@ -81,10 +81,11 @@ export const Navbar = () => {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
+                  // Updated text, active, and hover colors for the new white background
                   className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                     location.pathname === link.path
-                      ? 'bg-emerald-500/20 text-emerald-400'
-                      : 'text-white hover:text-emerald-400 hover:bg-white/10'
+                      ? 'bg-gray-100 text-gray-900' // New Active state
+                      : 'text-gray-700 hover:bg-gray-100' // New Inactive state
                   }`}
                 >
                   {link.name}

@@ -26,6 +26,7 @@ import {
 } from "react-icons/fa";
 
 // --- WeatherMap Component (Inlined) ---
+// This component's internal toolbar remains dark for map contrast
 const WeatherMap = () => {
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
   const puneCoords = [18.5204, 73.8567];
@@ -48,7 +49,7 @@ const WeatherMap = () => {
           top: 10,
           left: "50%",
           transform: "translateX(-50%)",
-          // This toolbar sits *on top* of the map, so it should stay dark for contrast.
+          // This toolbar sits *on top* of the map, so it should stay dark.
           backgroundColor: "rgba(2, 31, 2, 0.7)", 
           borderRadius: "12px",
           padding: "8px 12px",
@@ -180,7 +181,7 @@ const DashboardPage = () => {
             value: `${currentTemp.toFixed(1)}°C`,
             trend: weatherData.weather[0].description,
             color: 'from-amber-500 to-orange-500',
-            textColor: 'text-amber-400',
+            // textColor property is no longer used, text will be dark
           },
           {
             icon: Cloud,
@@ -188,7 +189,6 @@ const DashboardPage = () => {
             value: currentAqiIndex,
             trend: currentAqiText,
             color: 'from-red-500 to-pink-500',
-            textColor: 'text-red-400',
           },
           {
             icon: Droplets,
@@ -196,7 +196,6 @@ const DashboardPage = () => {
             value: `${currentRain} mm`,
             trend: 'Real-time',
             color: 'from-cyan-500 to-blue-500',
-            textColor: 'text-cyan-400',
           },
           {
             icon: Leaf,
@@ -204,7 +203,6 @@ const DashboardPage = () => {
             value: '405 ppm',
             trend: '+5 ppm',
             color: 'from-emerald-500 to-teal-500',
-            textColor: 'text-emerald-400',
           },
         ]);
 
@@ -220,10 +218,10 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    // 1. PAGE BACKGROUND: Set to #57af50
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#57af50' }}>
+    // 1. PAGE BACKGROUND: Set to #CCF0B9
+    <div className="min-h-screen pb-12" style={{ backgroundColor: '#CCF0B9' }}>
       <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header - Text is now dark to show on light bg */}
+        {/* Header - Text is already dark, looks good */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -247,13 +245,12 @@ const DashboardPage = () => {
             transition={{ delay: 0.2 }}
             className="lg:col-span-2"
           >
-            {/* 2. CARD BACKGROUND: Set to #13451b */}
-            <Card className="p-6 h-full" style={{ backgroundColor: '#13451b' }}>
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                {/* Text inside card is light again */}
-                <span className="text-gradient-emerald">National Overview</span>
+            {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+            <Card className="p-6 h-full" style={{ backgroundColor: '#FFFFFF' }}>
+              <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
+                <span style={{ color: '#13451b' }}>National Overview</span>
               </h2>
-              <div className="rounded-xl overflow-hidden h-[500px] border border-white/10">
+              <div className="rounded-xl overflow-hidden h-[500px] border border-gray-200">
                 <WeatherMap />
               </div>
             </Card>
@@ -269,35 +266,35 @@ const DashboardPage = () => {
             {isLoading ? (
               <Card 
                 className="p-6 h-[400px] flex justify-center items-center"
-                style={{ backgroundColor: '#13451b' }} // 2. CARD BACKGROUND
+                style={{ backgroundColor: '#FFFFFF' }} // 2. CARD BACKGROUND
               >
-                <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+                <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
               </Card>
             ) : error ? (
               <Card 
                 className="p-6 h-[400px] flex flex-col justify-center items-center"
-                style={{ backgroundColor: '#13451b' }} // 2. CARD BACKGROUND
+                style={{ backgroundColor: '#FFFFFF' }} // 2. CARD BACKGROUND
               >
-                <AlertTriangle className="w-8 h-8 mb-4 text-red-400" />
-                <span className="text-center text-red-400">{error}</span>
+                <AlertTriangle className="w-8 h-8 mb-4 text-red-600" />
+                <span className="text-center text-red-600">{error}</span>
               </Card>
             ) : (
               stats.map((stat, index) => {
                 const Icon = stat.icon;
                 return (
-                  <Card key={index} className="p-6" style={{ backgroundColor: '#13451b' }}> {/* 2. CARD BACKGROUND */}
+                  <Card key={index} className="p-6" style={{ backgroundColor: '#FFFFFF' }}> {/* 2. CARD BACKGROUND */}
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        {/* Text inside card is light */}
-                        <p className="text-sm text-muted-foreground mb-1">
+                        {/* 3. TEXT: Changed to dark */}
+                        <p className="text-sm text-gray-500 mb-1">
                           {stat.label}
                         </p>
                         <p
-                          className={`text-3xl font-bold ${stat.textColor} mb-1`}
+                          className="text-3xl font-bold text-gray-900 mb-1"
                         >
                           {stat.value}
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-gray-500">
                           {stat.trend}
                         </p>
                       </div>
@@ -320,26 +317,25 @@ const DashboardPage = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          {/* 2. CARD BACKGROUND: Set to #13451b */}
-          <Card className="p-6" style={{ backgroundColor: '#13451b' }}>
-            <h2 className="text-xl font-semibold mb-6">
+          {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+          <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+            <h2 className="text-xl font-semibold mb-6 text-gray-900">
               Air Quality (PM2.5){' '}
-              <span className="text-gradient-emerald">Forecast</span>
+              <span style={{ color: '#13451b' }}>Forecast</span>
             </h2>
             <div className="h-80">
               {isLoading ? (
                 <div className="flex justify-center items-center h-full">
-                  <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+                  <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
                 </div>
               ) : error ? (
-                 <div className="flex justify-center items-center h-full text-red-400">
+                 <div className="flex justify-center items-center h-full text-red-600">
                   <AlertTriangle className="w-5 h-5 mr-2" /> {error}
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={aqiTrend}>
                     <defs>
-                      {/* Reverted gradient to emerald */}
                       <linearGradient id="aqiGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop
                           offset="5%"
@@ -355,23 +351,23 @@ const DashboardPage = () => {
                     </defs>
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="rgba(255,255,255,0.1)" // Light grid lines
+                      stroke="rgba(0,0,0,0.1)" // 3. CHART: Dark grid lines
                     />
                     <XAxis
                       dataKey="date"
-                      stroke="hsl(var(--muted-foreground))" // Light text
+                      stroke="#6b7280" // 3. CHART: Dark text
                       style={{ fontSize: '12px' }}
                     />
                     <YAxis
-                      stroke="hsl(var(--muted-foreground))" // Light text
+                      stroke="#6b7280" // 3. CHART: Dark text
                       style={{ fontSize: '12px' }}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        backgroundColor: 'white',
+                        border: '1px solid #DDDDDD',
                         borderRadius: '8px',
-                        color: 'hsl(var(--foreground))',
+                        color: '#333333',
                       }}
                     />
                     <Area
@@ -381,7 +377,6 @@ const DashboardPage = () => {
                       stroke="hsl(var(--emerald))" // Emerald line
                       strokeWidth={2}
                       fill="url(#aqiGradient)"
-                      // The "ball" is now emerald
                       activeDot={{ 
                         r: 6, 
                         fill: 'hsl(var(--emerald))', 

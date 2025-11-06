@@ -55,10 +55,10 @@ const HomePage = () => {
       
       {/* 1. Hero Section: This is where the video will live */}
       <section
-        // Added 'homepage-hero-section' class for specific video styling
+        // This remains with LIGHT text for your dark video
         className="relative min-h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden pt-16 homepage-hero-section"
-        // Set the background color directly here. This must match your video's background.
-        style={{ backgroundColor: '#13451b' }} 
+        // This background color will be covered by your dark video
+        style={{ backgroundColor: '#000000' }} 
       >
         {/* 2. Place the video tag directly inside the Hero section */}
         <video autoPlay loop muted playsInline className="hero-background-video">
@@ -94,8 +94,8 @@ const HomePage = () => {
       {/* 4. Features Section: Keep its original background and styling */}
       <section
         className="py-20 relative"
-        // This was '#57af50' in your original code. Let's keep it.
-        style={{ backgroundColor: '#57af50' }} 
+        // UPDATED: Set background color as requested
+        style={{ backgroundColor: '#CCF0B9' }} 
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -104,10 +104,11 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white">
+            {/* Dark text is correct for the light green background */}
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900">
               Powerful Climate Tools
             </h2>
-            <p className="text-lg max-w-2xl mx-auto text-gray-300">
+            <p className="text-lg max-w-2xl mx-auto text-gray-700">
               Comprehensive suite of AI-powered tools for climate intelligence
               and policymaking.
             </p>
@@ -128,17 +129,19 @@ const HomePage = () => {
                   <Link to={feature.link}>
                     <Card
                       className="p-6 h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
-                      style={{ backgroundColor: '#13451b', border: '1px solid #0e3a0f' }}
+                      // This is your "card" background
+                      style={{ backgroundColor: '#FFFFFF', border: '1px solid #0e3a0f' }}
                     >
                       <div
                         className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}
                       >
                         <Icon className="w-7 h-7 text-white" />
                       </div>
-                      <h3 className="text-xl font-semibold mb-2 text-white">
+                      {/* Dark text is correct for the white card background */}
+                      <h3 className="text-xl font-semibold mb-2 text-gray-900">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-white/90">
+                      <p className="text-sm text-gray-700">
                         {feature.description}
                       </p>
                     </Card>
@@ -151,7 +154,8 @@ const HomePage = () => {
       </section>
 
       {/* 5. Footer: Keep its original background and styling */}
-      <div className="-mt-20" style={{ backgroundColor: '#021f02' }}>
+      {/* UPDATED: Wrapper background color to match features section */}
+      <div className="-mt-20" style={{ backgroundColor: '#CCF0B9' }}>
         <Footer />
       </div>
     </div>

@@ -54,7 +54,11 @@ const StateDashboardPage = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-24 pb-12">
+    // 1. PAGE BACKGROUND: Set to #CCF0B9
+    <div 
+      className="min-h-screen pt-24 pb-12 text-gray-900" 
+      style={{ backgroundColor: '#CCF0B9' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -63,19 +67,26 @@ const StateDashboardPage = () => {
           className="mb-8"
         >
           <h1 className="text-4xl font-bold mb-3">
-            State <span className="text-gradient-emerald">Dashboard</span>
+            State <span className="text-gradient-emerald" style={{ color: '#13451b' }}>Dashboard</span>
           </h1>
-          <p className="text-muted-foreground text-lg mb-6">
+          {/* 3. TEXT: Dark */}
+          <p className="text-gray-700 text-lg mb-6">
             Deep-dive into state-level climate data and policy impact analysis.
           </p>
 
           {/* State Selector */}
           <div className="max-w-xs">
             <Select value={selectedState} onValueChange={setSelectedState}>
-              <SelectTrigger className="glass-card border-white/10">
+              <SelectTrigger 
+                // 3. INPUT: Light theme
+                className="bg-white text-gray-900 border-gray-200"
+              >
                 <SelectValue placeholder="Choose State" />
               </SelectTrigger>
-              <SelectContent className="bg-card border-white/10">
+              <SelectContent 
+                // 3. INPUT: Light theme
+                className="bg-white text-gray-900"
+              >
                 {states.map((state) => (
                   <SelectItem key={state.value} value={state.value}>
                     {state.label}
@@ -88,16 +99,29 @@ const StateDashboardPage = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="climate" className="space-y-8">
-          <TabsList className="glass-card border border-white/10 p-1">
-            <TabsTrigger value="climate" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400">
+          <TabsList 
+            // 3. TABS: Light theme
+            className="bg-gray-200 p-1 text-gray-700"
+          >
+            <TabsTrigger 
+              value="climate" 
+              // 3. TABS: Light theme active state
+              className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm"
+            >
               <BarChart3 className="w-4 h-4 mr-2" />
               Climate Data
             </TabsTrigger>
-            <TabsTrigger value="simulator" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400">
+            <TabsTrigger 
+              value="simulator" 
+              className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm"
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               Policy Simulator
             </TabsTrigger>
-            <TabsTrigger value="sentiment" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400">
+            <TabsTrigger 
+              value="sentiment" 
+              className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm"
+            >
               <Users className="w-4 h-4 mr-2" />
               Sentiment Tracker
             </TabsTrigger>
@@ -110,39 +134,42 @@ const StateDashboardPage = () => {
               animate={{ opacity: 1, y: 0 }}
               className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
-              <Card className="glass-card p-6">
-                <p className="text-sm text-muted-foreground mb-2">Avg Temperature</p>
-                <p className="text-3xl font-bold text-amber-400">28.5°C</p>
-                <p className="text-xs text-muted-foreground mt-1">+3.2°C from last year</p>
+              {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                {/* 3. TEXT: Dark */}
+                <p className="text-sm text-gray-600 mb-2">Avg Temperature</p>
+                <p className="text-3xl font-bold text-amber-600">28.5°C</p>
+                <p className="text-xs text-gray-500 mt-1">+3.2°C from last year</p>
               </Card>
-              <Card className="glass-card p-6">
-                <p className="text-sm text-muted-foreground mb-2">Air Quality Index</p>
-                <p className="text-3xl font-bold text-red-400">258</p>
-                <p className="text-xs text-muted-foreground mt-1">Poor - Action needed</p>
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                <p className="text-sm text-gray-600 mb-2">Air Quality Index</p>
+                <p className="text-3xl font-bold text-red-600">258</p>
+                <p className="text-xs text-gray-500 mt-1">Poor - Action needed</p>
               </Card>
-              <Card className="glass-card p-6">
-                <p className="text-sm text-muted-foreground mb-2">Total Rainfall</p>
-                <p className="text-3xl font-bold text-cyan-400">145 mm</p>
-                <p className="text-xs text-muted-foreground mt-1">Past 6 months</p>
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                <p className="text-sm text-gray-600 mb-2">Total Rainfall</p>
+                <p className="text-3xl font-bold text-cyan-600">145 mm</p>
+                <p className="text-xs text-gray-500 mt-1">Past 6 months</p>
               </Card>
             </motion.div>
 
-            <Card className="glass-card p-6">
-              <h3 className="text-xl font-semibold mb-6">Climate Trends</h3>
+            <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+              <h3 className="text-xl font-semibold mb-6 text-gray-900">Climate Trends</h3>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={climateData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                    {/* 3. CHART: Light theme */}
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                    <XAxis dataKey="month" stroke="#6B7280" />
+                    <YAxis stroke="#6B7280" />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #DDDDDD',
                         borderRadius: '8px',
                       }}
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ color: '#333' }} />
                     <Line type="monotone" dataKey="temp" stroke="hsl(var(--amber))" strokeWidth={2} name="Temperature" />
                     <Line type="monotone" dataKey="aqi" stroke="hsl(var(--cyan))" strokeWidth={2} name="AQI" />
                     <Line type="monotone" dataKey="rainfall" stroke="hsl(var(--emerald))" strokeWidth={2} name="Rainfall" />
@@ -154,11 +181,12 @@ const StateDashboardPage = () => {
 
           {/* Policy Simulator Tab */}
           <TabsContent value="simulator" className="space-y-6">
-            <Card className="glass-card p-6">
-              <h3 className="text-xl font-semibold mb-6">Policy Configuration</h3>
+            <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+              <h3 className="text-xl font-semibold mb-6 text-gray-900">Policy Configuration</h3>
               <div className="space-y-8">
                 <div>
-                  <label className="text-sm text-muted-foreground mb-3 block">
+                  {/* 3. TEXT: Dark */}
+                  <label className="text-sm text-gray-600 mb-3 block">
                     Policy Budget: ₹{policyBudget}Cr
                   </label>
                   <Slider
@@ -170,7 +198,7 @@ const StateDashboardPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-muted-foreground mb-3 block">
+                  <label className="text-sm text-gray-600 mb-3 block">
                     Implementation Time: {implementationTime} months
                   </label>
                   <Slider
@@ -187,22 +215,23 @@ const StateDashboardPage = () => {
               </div>
             </Card>
 
-            <Card className="glass-card p-6">
-              <h3 className="text-xl font-semibold mb-6">Predicted Impact</h3>
+            <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+              <h3 className="text-xl font-semibold mb-6 text-gray-900">Predicted Impact</h3>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={beforeAfterData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="category" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                    {/* 3. CHART: Light theme */}
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                    <XAxis dataKey="category" stroke="#6B7280" />
+                    <YAxis stroke="#6B7280" />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #DDDDDD',
                         borderRadius: '8px',
                       }}
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ color: '#333' }} />
                     <Bar dataKey="before" fill="hsl(var(--amber))" name="Before Policy" />
                     <Bar dataKey="after" fill="hsl(var(--emerald))" name="After Policy" />
                   </BarChart>
@@ -214,8 +243,8 @@ const StateDashboardPage = () => {
           {/* Sentiment Tracker Tab */}
           <TabsContent value="sentiment" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="glass-card p-6">
-                <h3 className="text-xl font-semibold mb-6">Sentiment Distribution</h3>
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                <h3 className="text-xl font-semibold mb-6 text-gray-900">Sentiment Distribution</h3>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -235,8 +264,8 @@ const StateDashboardPage = () => {
                       </Pie>
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: 'hsl(var(--card))',
-                          border: '1px solid rgba(255,255,255,0.1)',
+                          backgroundColor: '#FFFFFF',
+                          border: '1px solid #DDDDDD',
                           borderRadius: '8px',
                         }}
                       />
@@ -245,8 +274,8 @@ const StateDashboardPage = () => {
                 </div>
               </Card>
 
-              <Card className="glass-card p-6">
-                <h3 className="text-xl font-semibold mb-6">Public Opinion Feed</h3>
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                <h3 className="text-xl font-semibold mb-6 text-gray-900">Public Opinion Feed</h3>
                 <div className="space-y-4 h-80 overflow-y-auto custom-scrollbar">
                   {mockTweets.map((tweet, index) => (
                     <motion.div
@@ -254,16 +283,18 @@ const StateDashboardPage = () => {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
+                      // 3. TWEETS: Light theme
                       className={`p-4 rounded-xl border ${
                         tweet.sentiment === 'positive'
-                          ? 'bg-emerald-500/10 border-emerald-500/30'
+                          ? 'bg-emerald-100 border-emerald-200'
                           : tweet.sentiment === 'neutral'
-                          ? 'bg-cyan-500/10 border-cyan-500/30'
-                          : 'bg-amber-500/10 border-amber-500/30'
+                          ? 'bg-cyan-100 border-cyan-200'
+                          : 'bg-amber-100 border-amber-200'
                       }`}
                     >
-                      <p className="font-medium text-sm text-foreground mb-1">@{tweet.user}</p>
-                      <p className="text-sm text-muted-foreground">{tweet.text}</p>
+                      {/* 3. TEXT: Dark */}
+                      <p className="font-medium text-sm text-gray-900 mb-1">@{tweet.user}</p>
+                      <p className="text-sm text-gray-700">{tweet.text}</p>
                     </motion.div>
                   ))}
                 </div>

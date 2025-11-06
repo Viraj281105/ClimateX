@@ -115,22 +115,24 @@ const PolicyLabPage = () => {
     }
   };
 
+  // --- UPDATED for light theme ---
   const getScoreColor = (score) => {
-    if (score >= 80) return 'text-emerald-400';
-    if (score >= 60) return 'text-cyan-400';
-    return 'text-amber-400';
+    if (score >= 80) return 'text-emerald-600';
+    if (score >= 60) return 'text-cyan-600';
+    return 'text-amber-600';
   };
 
+  // --- UPDATED for light theme ---
   const getCategoryColor = (category) => {
     const colors = {
-      Environment: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-      Transport: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
-      Industry: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-      Energy: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-      Education: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-      Water: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+      Environment: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      Transport: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+      Industry: 'bg-amber-100 text-amber-800 border-amber-200',
+      Energy: 'bg-blue-100 text-blue-800 border-blue-200',
+      Education: 'bg-purple-100 text-purple-800 border-purple-200',
+      Water: 'bg-teal-100 text-teal-800 border-teal-200',
     };
-    return colors[category] || 'bg-white/10 text-white border-white/30';
+    return colors[category] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
   
   // (Render functions for loading/error are unchanged)
@@ -138,7 +140,8 @@ const PolicyLabPage = () => {
     return (
       <div
         className="min-h-screen pt-24 pb-12 flex items-center justify-center"
-        style={{ backgroundColor: '#57af50' }}
+        // 1. PAGE BACKGROUND
+        style={{ backgroundColor: '#CCF0B9' }}
       >
         <Loader2 className="w-12 h-12 text-[#13451b] animate-spin" />
       </div>
@@ -149,9 +152,11 @@ const PolicyLabPage = () => {
     return (
       <div
         className="min-h-screen pt-24 pb-12 flex items-center justify-center"
-        style={{ backgroundColor: '#57af50' }}
+        // 1. PAGE BACKGROUND
+        style={{ backgroundColor: '#CCF0B9' }}
       >
-        <Card className="p-8 bg-red-900/50 border border-red-700 text-red-100 flex items-center">
+        {/* 2. CARD & TEXT: Light theme error */}
+        <Card className="p-8 bg-red-100 border border-red-300 text-red-800 flex items-center">
           <AlertTriangle className="w-8 h-8 mr-4" />
           <div>
             <h2 className="text-xl font-bold">Failed to Load</h2>
@@ -165,10 +170,11 @@ const PolicyLabPage = () => {
   return (
     <div
       className="min-h-screen pb-12"
-      style={{ backgroundColor: '#57af50' }}
+      // 1. PAGE BACKGROUND
+      style={{ backgroundColor: '#CCF0B9' }}
     >
       <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header (Already correct) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -198,19 +204,27 @@ const PolicyLabPage = () => {
         >
           <Card
             className="p-4"
-            style={{ backgroundColor: '#13451b' }}
+            // 2. CARD BACKGROUND
+            style={{ backgroundColor: '#FFFFFF' }}
           >
             <div className="flex items-center space-x-3">
-              <Filter className="w-5 h-5 text-emerald-400" />
-              <label className="text-sm font-medium text-emerald-400">
+              {/* 3. TEXT/ICON: Dark */}
+              <Filter className="w-5 h-5 text-emerald-600" />
+              <label className="text-sm font-medium text-gray-700">
                 Filter by Target Pollutant
               </label>
             </div>
             <Select value={pollutant} onValueChange={setPollutant}>
-              <SelectTrigger className="w-full mt-2">
+              <SelectTrigger
+                // 3. INPUT: Light theme
+                className="w-full mt-2 bg-white text-gray-900 border-gray-200"
+              >
                 <SelectValue placeholder="Select a pollutant" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent
+                // 3. INPUT: Light theme
+                className="bg-white text-gray-900"
+              >
                 {pollutantOptions.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -225,7 +239,7 @@ const PolicyLabPage = () => {
 
         {/* Policy Cards Grid */}
         <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* --- NEW --- Loading overlay */}
+          {/* --- NEW --- Loading overlay (Unchanged, overlay is fine) */}
           {isLoading && (
             <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
                 <Loader2 className="w-12 h-12 text-white animate-spin" />
@@ -244,7 +258,8 @@ const PolicyLabPage = () => {
               >
                 <Card
                   className="p-6 h-full flex flex-col"
-                  style={{ backgroundColor: '#13451b' }}
+                  // 2. CARD BACKGROUND
+                  style={{ backgroundColor: '#FFFFFF' }}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center space-x-3">
@@ -252,10 +267,12 @@ const PolicyLabPage = () => {
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg text-white">
+                        {/* 3. TEXT: Dark */}
+                        <h3 className="font-semibold text-lg text-gray-900">
                           {policy.policy_name}
                         </h3>
                         <Badge
+                          // 5. COLOR FUNCTION: Updated
                           className={`text-xs border ${getCategoryColor(
                             policy.category
                           )}`}
@@ -266,17 +283,20 @@ const PolicyLabPage = () => {
                     </div>
                   </div>
 
-                  <p className="text-muted-foreground text-sm mb-6 flex-1">
+                  {/* 3. TEXT: Dark */}
+                  <p className="text-gray-600 text-sm mb-6 flex-1">
                     {policy.expert_brief}
                   </p>
 
                   <div className="space-y-4 mb-6">
                     <div>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">
+                        {/* 3. TEXT: Dark */}
+                        <span className="text-gray-600">
                           Impact Score
                         </span>
                         <span
+                          // 5. COLOR FUNCTION: Updated
                           className={`font-semibold ${getScoreColor(
                             policy.impact_score
                           )}`}
@@ -288,10 +308,12 @@ const PolicyLabPage = () => {
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">
+                        {/* 3. TEXT: Dark */}
+                        <span className="text-gray-600">
                           Feasibility
                         </span>
                         <span
+                          // 5. COLOR FUNCTION: Updated
                           className={`font-semibold ${getScoreColor(
                             policy.feasibility
                           )}`}
@@ -303,10 +325,12 @@ const PolicyLabPage = () => {
                     </div>
                     <div>
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-muted-foreground">
+                        {/* 3. TEXT: Dark */}
+                        <span className="text-gray-600">
                           Public Acceptance
                         </span>
                         <span
+                          // 5. COLOR FUNCTION: Updated
                           className={`font-semibold ${getScoreColor(
                             policy.acceptance
                           )}`}
@@ -318,8 +342,9 @@ const PolicyLabPage = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
-                    <span className="text-sm text-muted-foreground">
+                  {/* 3. BORDER/TEXT: Light theme */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200 mt-auto">
+                    <span className="text-sm text-gray-600">
                       Timeframe: {policy.timeframe}
                     </span>
                     <Button
@@ -345,18 +370,21 @@ const PolicyLabPage = () => {
         >
           <Card
             className="p-8 text-center relative overflow-hidden"
-            style={{ backgroundColor: '#13451b' }}
+            // 2. CARD BACKGROUND
+            style={{ backgroundColor: '#FFFFFF' }}
           >
             <div className="absolute inset-0 gradient-animated opacity-10" />
             <div className="relative z-10">
-              <h2 className="text-2xl font-bold mb-4 text-white">
+              {/* 3. TEXT: Dark */}
+              <h2 className="text-2xl font-bold mb-4 text-gray-900">
                 How Our{' '}
-                <span className="text-gradient-emerald">
+                <span className="text-gradient-emerald" style={{ color: '#13451b' }}>
                   AI Policy Engine
                 </span>{' '}
                 Works
               </h2>
-              <p className="text-muted-foreground max-w-3xl mx-auto mb-6">
+              {/* 3. TEXT: Dark */}
+              <p className="text-gray-700 max-w-3xl mx-auto mb-6">
                 Our AI analyzes real-time climate data, historical trends,
                 causal relationships, and public sentiment to generate
                 evidence-based policy recommendations. Each policy is scored on
@@ -364,13 +392,14 @@ const PolicyLabPage = () => {
                 policymakers make informed decisions.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-2">
+                {/* 3. BADGES: Light theme */}
+                <Badge className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-4 py-2">
                   Causal Inference
                 </Badge>
-                <Badge className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-4 py-2">
+                <Badge className="bg-cyan-100 text-cyan-800 border border-cyan-200 px-4 py-2">
                   Predictive Modeling
                 </Badge>
-                <Badge className="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-4 py-2">
+                <Badge className="bg-amber-100 text-amber-800 border border-amber-200 px-4 py-2">
                   Sentiment Analysis
                 </Badge>
               </div>
@@ -383,16 +412,17 @@ const PolicyLabPage = () => {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent
           className="max-w-2xl"
+          // 2. MODAL BACKGROUND
           style={{
-            backgroundColor: '#13451b',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            backgroundColor: '#FFFFFF',
           }}
         >
           <DialogHeader>
-            <DialogTitle className="text-2xl text-gradient-emerald">
+            <DialogTitle className="text-2xl text-gradient-emerald" style={{ color: '#13451b' }}>
               {selectedPolicy?.policy_name}
             </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
+            {/* 3. TEXT: Dark */}
+            <DialogDescription className="text-gray-600">
               {selectedPolicy?.expert_brief}
             </DialogDescription>
           </DialogHeader>
@@ -407,8 +437,9 @@ const PolicyLabPage = () => {
                   exit={{ opacity: 0 }}
                   className="flex flex-col items-center justify-center h-60"
                 >
-                  <Loader2 className="w-10 h-10 text-emerald-400 animate-spin" />
-                  <p className="text-muted-foreground mt-4">
+                  {/* 3. ICON/TEXT: Dark */}
+                  <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
+                  <p className="text-gray-500 mt-4">
                     Generating detailed analysis...
                   </p>
                 </motion.div>
@@ -422,38 +453,43 @@ const PolicyLabPage = () => {
                 className="space-y-6"
               >
                 {detailData.error ? (
-                  <div className="p-4 bg-red-900/50 border border-red-700 text-red-100 rounded-lg flex items-center">
+                  // 3. ERROR: Light theme
+                  <div className="p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg flex items-center">
                     <AlertTriangle className="w-5 h-5 mr-3" />
                     <p>{detailData.error}</p>
                   </div>
                 ) : (
                   <>
                     <div className="space-y-4">
-                      <h3 className="flex items-center text-lg font-semibold text-emerald-400">
+                      {/* 3. TEXT/ICON: Dark */}
+                      <h3 className="flex items-center text-lg font-semibold text-emerald-600">
                         <BookOpen className="w-5 h-5 mr-2" />
                         Long-Term Impact Analysis
                       </h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
+                      <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
                         {detailData.long_impact_analysis}
                       </p>
                     </div>
 
                     <div className="space-y-4">
-                      <h3 className="flex items-center text-lg font-semibold text-emerald-400">
+                      {/* 3. TEXT/ICON: Dark */}
+                      <h3 className="flex items-center text-lg font-semibold text-emerald-600">
                         <Cog className="w-5 h-5 mr-2" />
                         Primary Mechanism
                       </h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
+                      <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
                         {detailData.primary_mechanism}
                       </p>
                     </div>
 
                     <div className="space-y-4">
-                      <h3 className="flex items-center text-lg font-semibold text-emerald-400">
+                      {/* 3. TEXT/ICON: Dark */}
+      
+                      <h3 className="flex items-center text-lg font-semibold text-emerald-600">
                         <Clock className="w-5 h-5 mr-2" />
                         Estimated Timeframe
                       </h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap">
+                      <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
                         {detailData.estimated_timeframe}
                       </p>
                     </div>
@@ -465,7 +501,8 @@ const PolicyLabPage = () => {
         </DialogContent>
       </Dialog>
       
-      <div style={{ backgroundColor: '#13451b' }}>
+      {/* 6. FOOTER WRAPPER: Match page background */}
+      <div style={{ backgroundColor: '#CCF0B9' }}>
         <Footer />
       </div>
     </div>

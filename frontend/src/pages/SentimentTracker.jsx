@@ -41,19 +41,23 @@ import Footer from '@/components/Footer';
 // --- NEW: Define your backend API's base URL ---
 const API_BASE_URL = 'http://localhost:8000';
 
-// Colors for the pie chart
+// Colors for the pie chart (These are fine, as they are chart colors)
 const PIE_COLORS = {
   positive: 'hsl(var(--emerald))',
   negative: 'hsl(var(--destructive))',
   neutral: 'hsl(var(--muted-foreground))',
 };
 
-// --- FIX 1: Updated Tooltip to show all payload items ---
+// --- FIX 1: Updated Tooltip to be light-themed ---
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="p-3 border-none rounded-md" style={{ backgroundColor: '#13451b' }}>
-        <p className="label text-muted-foreground">{label}</p>
+      <div 
+        className="p-3 border rounded-md shadow-lg" 
+        // 3. TOOLTIP: Updated to white background
+        style={{ backgroundColor: '#FFFFFF', borderColor: '#DDDDDD' }}
+      >
+        <p className="label text-gray-500">{label}</p>
         {payload.map((entry, index) => (
           <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
             {`${entry.name}: ${entry.value}`}
@@ -76,6 +80,7 @@ export default function SentimentTracker() {
   const [trendlineData, setTrendlineData] = useState([]);
   const [sourceData, setSourceData] = useState([]);
 
+  // ... (handleFetchData and useEffect remain the same) ...
   const handleFetchData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -131,9 +136,10 @@ export default function SentimentTracker() {
   };
 
   return (
-    <div className="min-h-screen pb-12 text-gray-900" style={{ backgroundColor: '#57af50' }}>
+    // 1. PAGE BACKGROUND: Set to #CCF0B9
+    <div className="min-h-screen pb-12 text-gray-900" style={{ backgroundColor: '#CCF0B9' }}>
       <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header (Already correct) */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 pt-24">
           <h1 className="text-4xl font-bold mb-4">
             Public Sentiment{' '}
@@ -148,21 +154,29 @@ export default function SentimentTracker() {
 
         {/* Filter Bar */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="p-6 mb-8" style={{ backgroundColor: '#13451b' }}>
+          {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+          <Card className="p-6 mb-8" style={{ backgroundColor: '#FFFFFF' }}>
             <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4">
               <Input
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 placeholder="Enter a topic (e.g., Solar Power, EV)"
-                className="flex-1"
+                // 3. INPUT: Light theme
+                className="flex-1 bg-white text-gray-900 border-gray-200 placeholder:text-gray-400"
               />
 
               <Select value={days} onValueChange={setDays}>
-                <SelectTrigger className="w-full md:w-[180px]">
+                <SelectTrigger 
+                  // 3. INPUT: Light theme
+                  className="w-full md:w-[180px] bg-white text-gray-900 border-gray-200"
+                >
                   <SelectValue placeholder="Select days" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent 
+                  // 3. INPUT: Light theme
+                  className="bg-white text-gray-900"
+                >
                   <SelectItem value="7">Last 7 Days</SelectItem>
                   <SelectItem value="30">Last 30 Days</SelectItem>
                   <SelectItem value="90">Last 90 Days</SelectItem>
@@ -179,7 +193,8 @@ export default function SentimentTracker() {
 
         {/* Error State */}
         {error && (
-          <Card className="p-6 bg-red-900/50 border border-red-700 text-red-100 flex items-center mb-8">
+          // 3. ERROR: Light theme
+          <Card className="p-6 bg-red-100 border border-red-300 text-red-800 flex items-center mb-8">
             <AlertTriangle className="w-6 h-6 mr-4 flex-shrink-0" />
             <div>
               <h3 className="font-semibold text-lg">Analysis Failed</h3>
@@ -194,19 +209,23 @@ export default function SentimentTracker() {
           <div className="lg:col-span-2 space-y-8">
             {/* Executive Summary */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="p-6 h-full" style={{ backgroundColor: '#13451b' }}>
-                <h2 className="text-xl font-semibold mb-4 flex items-center text-white">
-                  <BookText className="w-5 h-5 mr-2 text-emerald-400" />
+              {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+              <Card className="p-6 h-full" style={{ backgroundColor: '#FFFFFF' }}>
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
+                  {/* 3. TEXT/ICON: Dark */}
+                  <BookText className="w-5 h-5 mr-2 text-emerald-600" />
                   Executive Summary
                 </h2>
                 {isLoading ? (
                   <div className="space-y-3">
-                    <div className="h-4 bg-white/10 rounded-md animate-pulse" />
-                    <div className="h-4 bg-white/10 rounded-md animate-pulse w-5/6" />
-                    <div className="h-4 bg-white/10 rounded-md animate-pulse w-3/4" />
+                    {/* 3. SKELETON: Light theme */}
+                    <div className="h-4 bg-gray-200 rounded-md animate-pulse" />
+                    <div className="h-4 bg-gray-200 rounded-md animate-pulse w-5/6" />
+                    <div className="h-4 bg-gray-200 rounded-md animate-pulse w-3/4" />
                   </div>
                 ) : (
-                  <p className="text-muted-foreground whitespace-pre-wrap">
+                  // 3. TEXT: Dark
+                  <p className="text-gray-700 whitespace-pre-wrap">
                     {executiveSummary || 'No summary available.'}
                   </p>
                 )}
@@ -215,19 +234,22 @@ export default function SentimentTracker() {
 
             {/* Sentiment Trendline */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Card className="p-6" style={{ backgroundColor: '#13451b' }}>
-                <h2 className="text-xl font-semibold mb-6 flex items-center text-white">
-                  <TrendingUp className="w-5 h-5 mr-2 text-emerald-400" />
+              {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-900">
+                  {/* 3. TEXT/ICON: Dark */}
+                  <TrendingUp className="w-5 h-5 mr-2 text-emerald-600" />
                   Sentiment Trend
                 </h2>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={trendlineData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis stroke="hsl(var(--muted-foreground))" />
+                      {/* 3. CHART: Dark grid/text */}
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                      <XAxis dataKey="date" stroke="#6B7280" />
+                      <YAxis stroke="#6B7280" />
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend />
+                      <Legend wrapperStyle={{ color: '#333' }} />
                       <Line
                         type="monotone"
                         dataKey="positive"
@@ -260,9 +282,11 @@ export default function SentimentTracker() {
           <div className="lg:col-span-1 space-y-8">
             {/* Sentiment Breakdown */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <Card className="p-6" style={{ backgroundColor: '#13451b' }}>
-                <h2 className="text-xl font-semibold mb-4 flex items-center text-white">
-                  <PieChartIcon className="w-5 h-5 mr-2 text-emerald-400" />
+              {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
+                  {/* 3. TEXT/ICON: Dark */}
+                  <PieChartIcon className="w-5 h-5 mr-2 text-emerald-600" />
                   Sentiment Breakdown
                 </h2>
                 <div className="h-60">
@@ -282,7 +306,7 @@ export default function SentimentTracker() {
                         ))}
                       </Pie>
                       <Tooltip />
-                      <Legend />
+                      <Legend wrapperStyle={{ color: '#333' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -291,19 +315,22 @@ export default function SentimentTracker() {
 
             {/* Source Distribution */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-              <Card className="p-6" style={{ backgroundColor: '#13451b' }}>
-                <h2 className="text-xl font-semibold mb-6 flex items-center text-white">
-                  <Newspaper className="w-5 h-5 mr-2 text-emerald-400" />
+              {/* 2. CARD BACKGROUND: Set to #FFFFFF */}
+              <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
+                <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-900">
+                  {/* 3. TEXT/ICON: Dark */}
+                  <Newspaper className="w-5 h-5 mr-2 text-emerald-600" />
                   Source Distribution
                 </h2>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={sourceData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                      <YAxis dataKey="source" type="category" stroke="hsl(var(--muted-foreground))" width={80} />
+                      {/* 3. CHART: Dark grid/text */}
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
+                      <XAxis type="number" stroke="#6B7280" />
+                      <YAxis dataKey="source" type="category" stroke="#6B7280" width={80} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend />
+                      <Legend wrapperStyle={{ color: '#333' }} />
                       <Bar dataKey="positive" name="Positive" stackId="a" fill={PIE_COLORS.positive} />
                       <Bar dataKey="neutral" name="Neutral" stackId="a" fill={PIE_COLORS.neutral} />
                       <Bar dataKey="negative" name="Negative" stackId="a" fill={PIE_COLORS.negative} />
@@ -316,7 +343,8 @@ export default function SentimentTracker() {
         </div>
       </div>
 
-      <div style={{ backgroundColor: '#13451b' }}>
+      {/* 4. FOOTER WRAPPER: Match page background */}
+      <div style={{ backgroundColor: '#CCF0B9' }}>
         <Footer />
       </div>
     </div>
