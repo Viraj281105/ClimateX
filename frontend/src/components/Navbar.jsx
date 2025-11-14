@@ -26,11 +26,19 @@ export const Navbar = () => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left side: App name - Updated text color */}
+          {/* Left side: App name - Added logo and updated text color */}
           <Link
             to="/"
-            className="text-gray-800 text-xl font-bold tracking-wide hover:text-gray-600 transition-colors"
+            // UPDATED: Increased font size from text-xl to text-2xl
+            className="flex items-center text-gray-900 text-2xl font-bold tracking-wide hover:text-black transition-colors"
           >
+            {/* Added logo - assuming it's in your /public folder */}
+            <img 
+              src="/logo.png" 
+              alt="ClimateX Logo" 
+              // *** UPDATED SIZE HERE ***
+              className="h-12 w-12 mr-2" 
+            />
             ClimateX
           </Link>
 
@@ -40,10 +48,12 @@ export const Navbar = () => {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                // UPDATED: text-sm font-medium -> text-base font-bold
+                // UPDATED: text-gray-800 -> text-gray-900
+                className={`px-4 py-2 rounded-lg text-base font-bold transition-all duration-200 ${
                   location.pathname === link.path
-                    ? 'bg-black/10 text-gray-900' // New Active state
-                    : 'text-gray-700 hover:bg-black/5' // New Inactive state
+                    ? 'bg-black/10 text-gray-900' // Active state
+                    : 'text-gray-900 hover:bg-black/5' // Inactive state (darker)
                 }`}
               >
                 {link.name}
@@ -54,7 +64,8 @@ export const Navbar = () => {
           {/* Mobile Menu Button - Updated icon color and hover */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-black/10 transition-colors text-gray-800"
+            // Updated icon color
+            className="md:hidden p-2 rounded-lg hover:bg-black/10 transition-colors text-gray-900"
           >
             {isMobileMenuOpen ? (
               <X className="w-6 h-6" />
@@ -81,11 +92,12 @@ export const Navbar = () => {
                   key={link.path}
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  // Updated text, active, and hover colors for the new white background
-                  className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  // UPDATED: text-sm font-medium -> text-base font-bold
+                  // UPDATED: text-gray-800 -> text-gray-900
+                  className={`block px-4 py-3 rounded-lg text-base font-bold transition-all duration-200 ${
                     location.pathname === link.path
-                      ? 'bg-gray-100 text-gray-900' // New Active state
-                      : 'text-gray-700 hover:bg-gray-100' // New Inactive state
+                      ? 'bg-gray-100 text-gray-900' // Active state
+                      : 'text-gray-900 hover:bg-gray-100' // Inactive state (darker)
                   }`}
                 >
                   {link.name}

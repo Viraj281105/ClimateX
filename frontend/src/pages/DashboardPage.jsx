@@ -192,14 +192,14 @@ const DashboardPage = () => {
           },
           {
             icon: Droplets,
-            label: 'Rainfall (1h)',
+            label: 'Rainfall',
             value: `${currentRain} mm`,
             trend: 'Real-time',
             color: 'from-cyan-500 to-blue-500',
           },
           {
             icon: Leaf,
-            label: 'CO₂ Levels (Mock)',
+            label: 'CO₂ Levels',
             value: '405 ppm',
             trend: '+5 ppm',
             color: 'from-emerald-500 to-teal-500',
@@ -321,7 +321,6 @@ const DashboardPage = () => {
           <Card className="p-6" style={{ backgroundColor: '#FFFFFF' }}>
             <h2 className="text-xl font-semibold mb-6 text-gray-900">
               Air Quality (PM2.5){' '}
-              <span style={{ color: '#13451b' }}>Forecast</span>
             </h2>
             <div className="h-80">
               {isLoading ? (
@@ -377,12 +376,8 @@ const DashboardPage = () => {
                       stroke="hsl(var(--emerald))" // Emerald line
                       strokeWidth={2}
                       fill="url(#aqiGradient)"
-                      activeDot={{ 
-                        r: 6, 
-                        fill: 'hsl(var(--emerald))', 
-                        stroke: '#FFF', 
-                        strokeWidth: 2 
-                      }}
+                      // *** CHANGE: Removed the activeDot prop ***
+                      activeDot={false}
                     />
                   </AreaChart>
                 </ResponsiveContainer>

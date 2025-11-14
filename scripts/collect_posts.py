@@ -28,7 +28,7 @@ except Exception as e:
 news_api_key = os.getenv("NEWS_API_KEY")
 news_url = "https://newsapi.org/v2/everything"
 
-# --- Topics to Search (Expanded List) ---
+# --- Topics to Search (Exp`anded List) ---
 topics = [
     # --- English ---
     "climate change policy india", "renewable energy india", "electric vehicles india",

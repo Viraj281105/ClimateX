@@ -5,7 +5,7 @@ export const Footer = () => {
     <footer
       // Updated border and default text color
       className="relative mt-20 border-t border-gray-200 text-gray-700"
-      // Updated background color to the new one
+      // This is the correct background color
       style={{ backgroundColor: '#90bd85' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
