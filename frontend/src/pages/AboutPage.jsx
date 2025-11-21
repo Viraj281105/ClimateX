@@ -20,8 +20,8 @@ const HERO_IMAGE = "/mnt/data/6764ca62-3111-43da-ba19-e7a40ffe9cf2.png";
 const team = [
   { name: "Viraj Jadhao", initials: "VJ", bio: "Full-stack dev focused on AI integration and system reliability." },
   { name: "Yash Doke", initials: "YD", bio: "Generative AI specialist — prototype to production." },
-  { name: "Bhumi Sirvi", initials: "BS", bio: "UI/UX designer — clarity-first interfaces and accessible flows." },
   { name: "Harsh Jain", initials: "HJ", bio: "Data engineer — pipelines, quality, and observability." },
+  { name: "Bhumi Sirvi", initials: "BS", bio: "UI/UX designer — clarity-first interfaces and accessible flows." },
   { name: "Lakshya Veer Rana", initials: "LVR", bio: "Frontend craftsman — performance and pixel polish." },
 ];
 
