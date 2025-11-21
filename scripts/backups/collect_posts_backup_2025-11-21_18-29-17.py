@@ -44,30 +44,12 @@ if not NEWS_API_KEY:
 # 4. BASELINE (Fallback) TOPICS
 # ===============================
 BASELINE_TOPICS = [
-    "air quality india",
-    "bharatmala project",
-    "carbon tax india",
-    "climate change india",
-    "coal mining india",
-    "electric vehicles india",
-    "ganga action plan",
-    "green energy india",
-    "highway policy india",
-    "national solar mission",
-    "national water mission",
-    "net zero india",
-    "renewable energy india",
-    "smart cities mission india",
-    "topic1",
-    "topic2",
-    "topic3",
-    "topic4",
-    "topic5",
-    "topic6",
-    "topic7",
-    "transport emissions india",
-    "waste management india",
-    "water management india"
+    "climate change india", "renewable energy india", "electric vehicles india",
+    "carbon tax india", "green energy india", "national solar mission",
+    "net zero india", "coal mining india", "transport emissions india",
+    "highway policy india", "bharatmala project", "smart cities mission india",
+    "water management india", "ganga action plan", "national water mission",
+    "air quality india", "waste management india"
 ]
 
 # Hindi fallback
@@ -92,32 +74,7 @@ def load_active_topics():
     Falls back to baseline if DB empty.
     """
     records = list(TOPICS_COLLECTION.find({}, {"topic": 1}))
-    semantic_TOPICS = [
-    "air quality india",
-    "bharatmala project",
-    "carbon tax india",
-    "climate change india",
-    "coal mining india",
-    "electric vehicles india",
-    "ganga action plan",
-    "green energy india",
-    "highway policy india",
-    "national solar mission",
-    "national water mission",
-    "net zero india",
-    "renewable energy india",
-    "smart cities mission india",
-    "topic1",
-    "topic2",
-    "topic3",
-    "topic4",
-    "topic5",
-    "topic6",
-    "topic7",
-    "transport emissions india",
-    "waste management india",
-    "water management india"
-] for rec in records]
+    semantic_topics = [rec["topic"] for rec in records]
 
     if semantic_topics:
         print(f" [OK] Loaded {len(semantic_topics)} semantic topics.")

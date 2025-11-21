@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import simulator, sentiment, dashboard, recommender
+from app.api.v1.endpoints import simulator, sentiment, dashboard, recommender, topics
 
 api_router = APIRouter()
 
@@ -9,3 +9,4 @@ api_router.include_router(simulator.router, prefix="/causal", tags=["Causal Simu
 api_router.include_router(sentiment.router, prefix="/sentiment", tags=["Sentiment Analysis"])
 api_router.include_router(dashboard.router, prefix="/climate", tags=["Climate Dashboard"])
 api_router.include_router(recommender.router, prefix="/policies", tags=["Policy Recommender"])
+api_router.include_router(topics.router, prefix="/topics", tags=["Topics"])

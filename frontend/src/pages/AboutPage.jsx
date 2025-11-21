@@ -1,246 +1,304 @@
-import { motion } from 'framer-motion';
-import { Cloud, Users, Target, Zap } from 'lucide-react';
-import { Card } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import Footer from '@/components/Footer';
+// src/pages/AboutPage.jsx
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  Cloud,
+  Users,
+  Target,
+  Zap,
+  Code,
+  Globe,
+  Sparkles,
+  CheckCircle,
+} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Footer from "@/components/Footer";
 
-const AboutPage = () => {
-  const teamMembers = [
-    {
-      name: 'Priya Sharma',
-      role: 'Lead Climate Scientist',
-      initials: 'PS',
-      bio: 'PhD in Climate Science with 10+ years in environmental research.',
-    },
-    {
-      name: 'Arjun Patel',
-      role: 'AI/ML Engineer',
-      initials: 'AP',
-      bio: 'Specializes in predictive modeling and causal inference systems.',
-    },
-    {
-      name: 'Ananya Reddy',
-      role: 'Data Analyst',
-      initials: 'AR',
-      bio: 'Expert in big data analytics and climate data visualization.',
-    },
-    {
-      name: 'Rohan Kumar',
-      role: 'Policy Advisor',
-      initials: 'RK',
-      bio: 'Former government consultant on sustainable development policies.',
-    },
-  ];
+const HERO_IMAGE = "/mnt/data/6764ca62-3111-43da-ba19-e7a40ffe9cf2.png";
 
-  const values = [
-    {
-      icon: Target,
-      title: 'Evidence-Based',
-      description:
-        'Every recommendation is backed by rigorous data analysis and scientific research.',
-    },
-    {
-      icon: Zap,
-      title: 'Real-Time Intelligence',
-      description:
-        'Continuous monitoring and instant insights for proactive climate action.',
-    },
-    {
-      icon: Users,
-      title: 'People-Centric',
-      description:
-        'Incorporating public sentiment to ensure policies resonate with communities.',
-    },
-  ];
+const team = [
+  { name: "Viraj Jadhao", initials: "VJ", bio: "Full-stack dev focused on AI integration and system reliability." },
+  { name: "Yash Doke", initials: "YD", bio: "Generative AI specialist — prototype to production." },
+  { name: "Bhumi Sirvi", initials: "BS", bio: "UI/UX designer — clarity-first interfaces and accessible flows." },
+  { name: "Lakshya Veer Rana", initials: "LVR", bio: "Frontend craftsman — performance and pixel polish." },
+  { name: "Harsh Jain", initials: "HJ", bio: "Data engineer — pipelines, quality, and observability." },
+];
 
+const values = [
+  { icon: Target, title: "Evidence-driven", text: "Every insight is grounded in data, not guesswork." },
+  { icon: Zap, title: "Realtime-first", text: "Timely signals shape faster, sharper decisions." },
+  { icon: Users, title: "People-centered", text: "Public sentiment forms the backbone of our policy logic." },
+];
+
+const stack = [
+  { icon: Code, label: "Python, FastAPI, PyTorch" },
+  { icon: Globe, label: "React, Tailwind, Recharts, Leaflet" },
+  { icon: Sparkles, label: "Ollama, HuggingFace, SentenceTransformers" },
+  { icon: CheckCircle, label: "MongoDB + Vector Search" },
+];
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 14 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.45, delay },
+});
+
+export default function AboutPage() {
   return (
-    // 1. PAGE BACKGROUND: Set to #CCF0B9
     <div
       className="min-h-screen pb-12 text-gray-900"
-      style={{ backgroundColor: '#CCF0B9' }}
+      style={{ backgroundColor: "#CCF0B9" }}
     >
-      {/* 2. LAYOUT: Removed max-width and mx-auto */}
-      <div className="px-4 sm:px-6 lg:px-8">
-        {/* Header - Added pt-24 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16 pt-24"
-        >
-          <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-2xl mb-6">
-            <Cloud className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold mb-4">
-            About{' '}
-            {/* 3. TEXT: Dark accent color looks good on light green bg */}
-            <span
-              className="text-gradient-emerald"
-              style={{ color: '#13451b' }}
-            >
-              ClimateX
-            </span>
-          </h1>
-          {/* 3. TEXT: Already dark, looks good */}
-          <p className="text-gray-800 text-lg max-w-3xl mx-auto">
-            ClimateX is an AI-powered platform designed to enable evidence-based
-            climate policymaking by integrating real-time data, causal
-            inference, and public sentiment analytics.
-          </p>
-        </motion.div>
+      {/* HERO */}
+      <section
+        className="relative overflow-hidden"
+        aria-label="About ClimateX hero"
+        style={{ minHeight: "50vh" }}
+      >
+        <img
+          src={HERO_IMAGE}
+          alt="Climate hero"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ filter: "brightness(0.6)", transform: "scale(1.05)" }}
+        />
 
-        {/* Mission Statement */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-16"
-        >
-          {/* 4. CARD BACKGROUND: Set to #FFFFFF */}
-          <Card
-            className="p-8 md:p-12 text-center relative overflow-hidden"
-            style={{ backgroundColor: '#FFFFFF' }}
-          >
-            <div className="absolute inset-0 gradient-animated opacity-10" />
-            <div className="relative z-10">
-              {/* 3. TEXT: Changed text inside card to dark */}
-              <h2 className="text-3xl font-bold mb-4 text-gray-900">
-                Our{' '}
-                <span style={{ color: '#13451b' }}>
-                  Mission
-                </span>
-              </h2>
-              <p className="text-gray-700 text-lg max-w-3xl mx-auto">
-                To empower policymakers and citizens with real-time climate
-                intelligence, enabling data-driven decisions that lead to
-                sustainable and impactful climate action across India.
-              </p>
-            </div>
-          </Card>
-        </motion.div>
+        {/* NEW: contrast overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(19,69,27,0.45), rgba(0,0,0,0.45))",
+          }}
+        />
 
-        {/* Core Values */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-16"
-        >
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Our{' '}
-            <span
-              className="text-gradient-emerald"
-              style={{ color: '#13451b' }}
-            >
-              Values
-            </span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {values.map((value, index) => {
-              const Icon = value.icon;
-              return (
-                // 4. CARD BACKGROUND: Set to #FFFFFF
-                <Card
-                  key={index}
-                  className="p-6 text-center"
-                  style={{ backgroundColor: '#FFFFFF' }}
-                >
-                  <div className="w-16 h-16 mx-auto rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg mb-4">
-                    <Icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
-                    {value.title}
-                  </h3>
-                  <p className="text-gray-700 text-sm">
-                    {value.description}
-                  </p>
-                </Card>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Team Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <h2 className="text-3xl font-bold text-center mb-12">
-            Meet Our{' '}
-            <span
-              className="text-gradient-emerald"
-              style={{ color: '#13451b' }}
-            >
-              Team
-            </span>
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {teamMembers.map((member, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24 flex flex-col justify-center h-full">
+          <motion.div {...fadeUp(0)} className="max-w-3xl">
+            <div className="inline-flex items-center gap-3 mb-4">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-black/20"
+                style={{
+                  background: "linear-gradient(135deg,#10b981,#06b6d4)",
+                }}
               >
-                {/* 4. CARD BACKGROUND: Set to #FFFFFF */}
+                <Cloud className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-sm font-medium text-gray-100/90">
+                ClimateX — Real-Time Climate Intelligence
+              </span>
+            </div>
+
+            <h1
+              className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-4 leading-tight"
+              style={{
+                color: "white",
+                textShadow: "0 2px 14px rgba(0,0,0,0.55)",
+              }}
+            >
+              Built for better climate policy —
+              <br />
+              <span style={{ color: "#CCF0B9" }}>evidence, clarity, action.</span>
+            </h1>
+
+            <p
+              className="text-lg text-gray-100/90 max-w-2xl"
+              style={{ textShadow: "0 1px 10px rgba(0,0,0,0.4)" }}
+            >
+              We merge causal AI, live environmental data, and public sentiment
+              into a single decision layer — empowering policymakers to shift
+              from debate to measurable outcomes.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CONTENT */}
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 -mt-14 relative z-20">
+        {/* Top cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[ 
+            { title: "Our Story", text: "ClimateX began as a hackathon project and matured into a lightweight, audit-friendly climate intelligence engine — built for real-world policy adoption." },
+            { title: "Mission", text: "Equip institutions with timely evidence, sharper insights, and practical pathways to reduce pollution and accelerate sustainability." },
+            { title: "How we work", text: "Ingestion → semantic discovery → sentiment + causal scoring → targeted recommendations. Transparent, modular, and reproducible." },
+          ].map((item, idx) => (
+            <motion.div key={idx} {...fadeUp(0.05 + idx * 0.06)}>
+              <Card
+                className="p-6 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl"
+                style={{ backgroundColor: "#FFFFFF" }}
+              >
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">
+                  {item.title}
+                </h3>
+                <p className="text-gray-700 text-sm leading-relaxed">
+                  {item.text}
+                </p>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Values + Tech */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-10">
+          {/* VALUES */}
+          <motion.div {...fadeUp(0.22)} className="lg:col-span-2">
+            <Card
+              className="p-6 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl"
+              style={{ backgroundColor: "#FFFFFF" }}
+            >
+              <h3 className="text-xl font-semibold mb-4" style={{ color: "#13451b" }}>
+                What we value
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {values.map((v, i) => {
+                  const Icon = v.icon;
+                  return (
+                    <div
+                      key={i}
+                      className="flex gap-3 items-start p-3 rounded-lg hover:bg-gray-50 transition"
+                    >
+                      <div
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shadow"
+                        style={{
+                          background: "linear-gradient(135deg,#10b981,#06b6d4)",
+                        }}
+                      >
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{v.title}</p>
+                        <p className="text-sm text-gray-600 leading-relaxed">{v.text}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <hr className="my-6 border-gray-200" />
+
+              <h4 className="text-lg font-semibold mb-3 text-gray-900">
+                Tech & Architecture
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {stack.map((s, idx) => {
+                  const Icon = s.icon;
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-3 p-3 rounded-md border border-gray-100 hover:border-emerald-400/40 hover:shadow transition"
+                    >
+                      <div
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ background: "rgba(19,69,27,0.06)" }}
+                      >
+                        <Icon className="w-5 h-5 text-[#13451b]" />
+                      </div>
+                      <div className="text-sm text-gray-700">{s.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          </motion.div>
+
+          {/* IMPACT */}
+          <motion.div {...fadeUp(0.28)}>
+            <Card
+              className="p-6 shadow-md hover:shadow-xl transition-all duration-300 rounded-xl"
+              style={{ backgroundColor: "#FFFFFF" }}
+            >
+              <h3 className="text-xl font-semibold mb-4" style={{ color: "#13451b" }}>
+                Impact & Vision
+              </h3>
+              <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                ClimateX shortens the climate-policy feedback loop — enabling governments,
+                researchers, and NGOs to pilot interventions, measure outcomes, and scale
+                what works.
+              </p>
+
+              <ul className="space-y-3 text-sm text-gray-700">
+                <li>• Pilot-ready playbooks for focused interventions</li>
+                <li>• Monitoring with reproducible transparency</li>
+                <li>• Roadmap to measure societal-scale outcomes by 2030</li>
+              </ul>
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* TEAM */}
+        <motion.div {...fadeUp(0.34)} className="mt-12">
+          <h3 className="text-2xl font-bold mb-6 text-gray-900">The Team</h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            {team.map((m, i) => (
+              <motion.div key={i} {...fadeUp(0.38 + i * 0.03)}>
                 <Card
-                  className="p-6 text-center h-full flex flex-col"
-                  style={{ backgroundColor: '#FFFFFF' }}
+                  className="p-5 text-center shadow hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-xl"
+                  style={{ backgroundColor: "#FFFFFF" }}
                 >
-                  <Avatar className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-emerald-500 to-cyan-500">
-                    <AvatarFallback className="text-white text-xl font-bold">
-                      {member.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h3 className="font-semibold text-lg mb-1 text-gray-900">
-                    {member.name}
-                  </h3>
-                  {/* Updated role color for better readability on white */}
-                  <p className="text-emerald-700 text-sm mb-3">{member.role}</p>
-                  <p className="text-gray-700 text-sm flex-1">
-                    {member.bio}
-                  </p>
+                  <div className="flex flex-col items-center">
+                    <Avatar className="w-20 h-20 mb-4 bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-600/30">
+                      <AvatarFallback className="text-white text-lg font-bold">
+                        {m.initials}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div>
+                      <div className="font-semibold text-gray-900">{m.name}</div>
+                      <div className="text-sm text-gray-600 mt-2 leading-relaxed">
+                        {m.bio}
+                      </div>
+                    </div>
+                  </div>
                 </Card>
               </motion.div>
             ))}
           </div>
         </motion.div>
 
-        {/* Technology Stack Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-16"
-        >
-          {/* 4. CARD BACKGROUND: Set to #FFFFFF */}
+        {/* CTA */}
+        <motion.div {...fadeUp(0.56)} className="mt-14">
           <Card
-            className="p-8 text-center"
-            style={{ backgroundColor: '#FFFFFF' }}
+            className="p-6 flex flex-col md:flex-row items-center justify-between shadow-md hover:shadow-xl transition-all duration-300 rounded-xl"
+            style={{ backgroundColor: "#FFFFFF" }}
           >
-            <h2 className="text-2xl font-bold mb-4 text-gray-900">
-              Built for the{' '}
-              <span style={{ color: '#13451b' }}>
-                Climate Innovation Hackathon
-              </span>
-            </h2>
-            <p className="text-gray-700 max-w-3xl mx-auto">
-              ClimateX was developed as part of a national initiative to
-              leverage technology for climate action. Our platform combines
-              cutting-edge AI, big data analytics, and user-centric design to
-              create a powerful tool for climate intelligence.
-            </p>
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900">
+                Want to help shape ClimateX?
+              </h4>
+              <p className="text-sm text-gray-700 mt-1 leading-relaxed">
+                Whether it's code, domain insights, or datasets — contributors are welcome.
+                Raise an issue or reach out to collaborate.
+              </p>
+            </div>
+
+            <div className="mt-4 md:mt-0 flex gap-3">
+              <a
+                href="https://github.com/Viraj281105/ClimateX"
+                className="inline-flex items-center px-4 py-2 rounded-md font-medium transform hover:scale-[1.03] transition"
+                style={{
+                  background: "linear-gradient(135deg,#10b981,#06b6d4)",
+                  color: "#fff",
+                }}
+              >
+                View repo
+              </a>
+              <a
+                href="mailto:viraj.jadhao28@gmail.com"
+                className="inline-flex items-center px-4 py-2 rounded-md font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 transition"
+              >
+                Contact team
+              </a>
+            </div>
           </Card>
         </motion.div>
-      </div>
+      </main>
 
-      {/* 5. FOOTER: Wrapped in main #CCF0B9 bg div */}
-      <div style={{ backgroundColor: '#CCF0B9' }}>
+      {/* FOOTER */}
+      <div style={{ backgroundColor: "#CCF0B9" }}>
         <Footer />
       </div>
     </div>
   );
-};
-
-export default AboutPage;
+}

@@ -1,27 +1,50 @@
 from pydantic import BaseModel
 from typing import List
 
-# Define the structure of the incoming query from the frontend
+# ------------------------------------------------------------
+# INPUT MODEL — what frontend sends *if using the older API*
+# ------------------------------------------------------------
+
 class SimulationQuery(BaseModel):
     policy_type: str
-    action_type: str  # <-- CHANGED: This matches your data
-    
-    # Example of what the frontend will send:
-    # {
-    #   "policy_type": "Air Quality Regulation",
-    #   "action_type": "Emission Standards"
-    # }
+    action_type: str
 
-# Define the structure of a single analogy result
+
+# ------------------------------------------------------------
+# ANALOGY MODEL — a single matched historical policy
+# ------------------------------------------------------------
+
 class AnalogyResult(BaseModel):
-    Policy: str           # From features_db['Policy']
-    policy_type: str      # From features_db['policy_type']
-    action_type: str      # From features_db['action_type']
-    Policy_Content: str   # From features_db['Policy_Content']
+    Policy: str
+    policy_type: str
+    action_type: str
+    Policy_Content: str
     Similarity_Score: float
-    Predicted_Impact_Score: float # From impact_db['ate']
+    Predicted_Impact_Score: float
 
-# Define the final response structure
+
+# ------------------------------------------------------------
+# LEGACY RESPONSE (for the older similarity engine)
+# ------------------------------------------------------------
+
 class SimulationResponse(BaseModel):
     query: SimulationQuery
     analogies: List[AnalogyResult]
+
+
+# ------------------------------------------------------------
+# NEW RESPONSE MODEL (matches updated /simulate endpoint)
+# KEEPING IT SEPARATE TO AVOID BREAKING OLD CODE
+# ------------------------------------------------------------
+
+class HistoricalAnalogy(BaseModel):
+    policy_name: str
+    year_enacted: int
+
+class PolicySimulationResponse(BaseModel):
+    generated_impact_summary: str
+    user_policy_type: str
+    user_action_type: str
+    target_pollutants: List[str]
+    historical_analogies_found: int
+    analogies: List[HistoricalAnalogy]

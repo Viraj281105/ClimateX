@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+
 import {
   FaCloud,
   FaCloudRain,
@@ -10,11 +11,10 @@ import {
   FaSnowflake,
 } from "react-icons/fa";
 
-const WeatherMap: React.FC = () => {
+const WeatherMap = () => {
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
-
-  const puneCoords: [number, number] = [18.5204, 73.8567];
-  const [activeLayer, setActiveLayer] = useState<string>("temp_new");
+  const puneCoords = [18.5204, 73.8567];
+  const [activeLayer, setActiveLayer] = useState("temp_new");
 
   const layers = [
     { id: "temp_new", icon: <FaTemperatureHigh />, name: "Temperature" },
@@ -26,22 +26,18 @@ const WeatherMap: React.FC = () => {
   ];
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* Toolbar (This is fine, no changes needed) */}
+    <div className="relative">
+      {/* Floating Layer Selector */}
       <div
+        className="flex gap-3 px-4 py-2 rounded-xl shadow-lg border border-white/10"
         style={{
+          backgroundColor: "rgba(2,31,2,0.65)",
+          backdropFilter: "blur(10px)",
           position: "absolute",
-          top: 10,
+          top: 15,
           left: "50%",
           transform: "translateX(-50%)",
-          backgroundColor: "rgba(2, 31, 2, 0.7)",
-          borderRadius: "12px",
-          padding: "8px 12px",
           zIndex: 1000,
-          display: "flex",
-          gap: "12px",
-          backdropFilter: "blur(6px)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
         }}
       >
         {layers.map((layer) => (
@@ -49,18 +45,15 @@ const WeatherMap: React.FC = () => {
             key={layer.id}
             onClick={() => setActiveLayer(layer.id)}
             title={layer.name}
+            className="transition-all text-xl"
             style={{
               color: activeLayer === layer.id ? "#34d399" : "white",
-              fontSize: "20px",
+              padding: "6px 10px",
+              borderRadius: "10px",
               background:
                 activeLayer === layer.id
-                  ? "rgba(16, 185, 129, 0.2)"
+                  ? "rgba(52,211,153,0.18)"
                   : "transparent",
-              border: "none",
-              cursor: "pointer",
-              padding: "6px 10px",
-              borderRadius: "8px",
-              transition: "all 0.2s ease-in-out",
             }}
           >
             {layer.icon}
@@ -72,26 +65,21 @@ const WeatherMap: React.FC = () => {
       <MapContainer
         center={puneCoords}
         zoom={6}
+        minZoom={4}
+        maxZoom={10}
+        scrollWheelZoom={true}
         style={{
           height: "500px",
           width: "100%",
-          borderRadius: "10px",
+          borderRadius: "16px",
           overflow: "hidden",
         }}
       >
-        {/* *** THIS IS THE FIX *** */}
-        {/* We are changing the base map to a dark, simple one */}
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-        />
-
-        {/* This layer will now 'pop' on top of the dark map */}
-        <TileLayer
-          key={activeLayer} 
+          key={activeLayer}
           url={`https://tile.openweathermap.org/map/${activeLayer}/{z}/{x}/{y}.png?appid=${API_KEY}`}
-          // We keep the opacity at 1.0 for full color
-          opacity={1.0}
+          opacity={0.7}
         />
       </MapContainer>
     </div>

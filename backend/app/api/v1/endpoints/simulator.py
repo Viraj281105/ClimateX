@@ -5,40 +5,38 @@ import json
 from fastapi import APIRouter, HTTPException, Query, Body
 from pydantic import BaseModel
 from pathlib import Path
-from typing import List, Dict, Optional, Any
+from typing import List, Dict
 from enum import Enum
+import re
 
-# --- Define User-Friendly Pollutant Mapping (NEW) ---
+# --- Define User-Friendly Pollutant Mapping (UNCHANGED) ---
 class UserPollutant(str, Enum):
-    """Defines the selectable, user-friendly options for the frontend."""
     CARBON_DIOXIDE = "Carbon Dioxide (CO2)"
     AIR_POLLUTION = "Air Pollution (PM/NOx)"
     GENERAL = "General Pollutants (SO2)"
 
-# --- Define the mapping from User Label to Technical Label ---
 POLLUTANT_MAP = {
-    UserPollutant.CARBON_DIOXIDE.value: "EDGAR_CO_1970_2022", # Closest CO2 proxy in your data
-    UserPollutant.AIR_POLLUTION.value: "EDGAR_PM2", 
+    UserPollutant.CARBON_DIOXIDE.value: "EDGAR_CO_1970_2022",
+    UserPollutant.AIR_POLLUTION.value: "EDGAR_PM2",
     UserPollutant.GENERAL.value: "EDGAR_SO2_1970_2022"
 }
+
+# -----------------------------------------------------------
+# Loading KB + LLM
 # -----------------------------------------------------------
 
-# --- 1. Setup: Load Knowledge Base and Ollama Client (No Functional Change) ---
 try:
     FILE_DIR = Path(__file__).parent
-    # This path might need adjustment. It assumes this file is 5 levels deep from the root.
-    # e.g., /ClimateX/backend/app/api/v1/endpoints/simulator.py
-    # If your structure is different, you may need ROOT_DIR = FILE_DIR.parents[3] or similar
-    ROOT_DIR = FILE_DIR.parents[4] 
+    ROOT_DIR = FILE_DIR.parents[4]
     DB_PATH = ROOT_DIR / "data" / "processed" / "india_policies_featurized_local.csv"
-    
+
     df_knowledge_base = pd.read_csv(DB_PATH)
     df_knowledge_base = df_knowledge_base.dropna(subset=['Policy', 'Year', 'policy_type', 'action_type'])
     df_knowledge_base = df_knowledge_base[~df_knowledge_base['policy_type'].isin(['ParseError', 'Error'])]
-    
+
     ollama_client = ollama.Client()
-    ollama_client.list() # Test connection
-    
+    ollama_client.list()
+
 except Exception as e:
     print(f"--- CRITICAL SERVER STARTUP ERROR ---")
     print(f"Error: {e}")
@@ -48,7 +46,9 @@ except Exception as e:
 
 router = APIRouter()
 
-# --- 2. Define API Output (No Change) ---
+# -----------------------------------------------------------
+# Response Models
+# -----------------------------------------------------------
 
 class HistoricalAnalogy(BaseModel):
     policy_name: str
@@ -58,183 +58,193 @@ class PolicySimulationResponse(BaseModel):
     generated_impact_summary: str
     user_policy_type: str
     user_action_type: str
-    target_pollutants: List[str] # <-- Updated to reflect List of targets
+    target_pollutants: List[str]
     historical_analogies_found: int
     analogies: List[HistoricalAnalogy]
 
-# --- 3. Helper Functions (FIXED) ---
+# -----------------------------------------------------------
+# Helper Functions
+# -----------------------------------------------------------
 
 def get_policy_features(policy_content: str) -> Dict[str, str]:
-    """
-    Uses Ollama (mistral) to classify the policy text into its 'policy_type'
-    and 'action_type' and returns them as a JSON object.
-    """
     if not ollama_client:
         return {"policy_type": "Error", "action_type": "LLM client not available"}
 
-    # A specialized prompt to force the LLM to classify the text.
     prompt = f"""
-    You are a policy classification engine. Your sole purpose is to analyze a policy text
-    and classify it into a 'policy_type' and an 'action_type' from the provided lists.
-    Return ONLY a valid JSON object with the two keys.
+    You are a policy classification engine. Analyze the policy text
+    and classify it into a 'policy_type' and an 'action_type' from the lists.
 
-    Policy Text to Analyze:
+    Policy Text:
     "{policy_content}"
 
-    ---
     Categories:
     - policy_type: [Renewable Energy, Industrial Regulation, Transportation, Agriculture, Waste Management, Forestry, Market Mechanism, Public Awareness]
     - action_type: [Subsidies, Ban, Regulation, Investment, R&D, Tax, Public Campaign]
-    ---
 
-    Return your classification as a single JSON object, like this:
-    {{"policy_type": "...", "action_type": "..."}}
+    Return ONLY JSON: {{"policy_type": "...", "action_type": "..." }}
     """
 
     try:
         response = ollama_client.generate(
             model='mistral',
             prompt=prompt,
-            format='json' # Ask for JSON output
+            format='json'
         )
-        
-        # The response['response'] will be a JSON *string*, e.g., '{"policy_type": "..."}'
+
         result_json = response['response'].strip()
-        
-        # Parse the JSON string into a Python dictionary
         result_dict = json.loads(result_json)
-        
-        # Basic validation
+
         if 'policy_type' in result_dict and 'action_type' in result_dict:
             return result_dict
         else:
-            # The LLM returned JSON, but with the wrong keys
             return {"policy_type": "ParseError", "action_type": "Invalid JSON keys"}
 
     except json.JSONDecodeError:
-        # The LLM's response was not a valid JSON string
         return {"policy_type": "ParseError", "action_type": "LLM did not return valid JSON"}
     except Exception as e:
-        # Any other error (e.g., Ollama connection)
         return {"policy_type": "Error", "action_type": str(e)}
 
-def generate_impact_summary(policy_type: str, action_type: str, target_pollutants: List[str], analogies: List[Dict]) -> str:
-    """Updated to include the list of pollutants in the prompt."""
+def generate_impact_summary(policy_type, action_type, target_pollutants, analogies):
     if not ollama_client:
-        return "System Error: LLM client is unavailable."
+        return "System Error: LLM unavailable."
 
     analogy_text = "\n".join([
         f"- {a['policy_name']} ({a['year_enacted']})" for a in analogies
-    ])
-    
-    if not analogy_text:
-        analogy_text = "No direct historical analogies were found for this specific combination."
+    ]) or "No direct historical analogies were found for this combination."
 
-    # REFINED PROMPT: Includes the target pollutants in the synthesis instruction
     prompt = f"""
-    You are an expert climate policy analyst writing a detailed executive summary for a government cabinet.
-    
-    The user is proposing a policy classified as:
+    You are an environmental policy analyst advising the Government of India.
+
+    Write a **detailed, evidence-based policy impact brief** using the historical analogies provided.
+    Ground your explanation specifically in **Indian regulatory history, Indian transport patterns,
+    and India’s pollution challenges (PM2.5, PM10, NOx)**.
+
+    Proposed Policy:
     - Policy Type: {policy_type}
     - Action Type: {action_type}
     - Target Pollutants: {', '.join(target_pollutants)}
-    
-    The historical record shows these similar policies were implemented in the past (use these for context):
-    {analogy_text}
-    
-    Write a single, detailed narrative paragraph (approximately 250 words total) structured with clear section headers. Synthesize the expected outcomes, focusing specifically on the **dual impact** on the identified Target Pollutants.
 
-    ---
-    
-    SECTION 1: Expected Impact & Strategic Value
-    Describe the typical primary environmental and economic benefits. Focus on the strategic alignment with national goals (e.g., energy security, global leadership).
-    
-    SECTION 2: Implementation Challenges
-    Analyze the common historical difficulties faced by similar policies (e.g., grid issues, financing risks, local opposition).
-    
-    SECTION 3: Recommended Next Steps
-    Conclude with a clear, concise recommendation on how to maximize success based on the lessons learned from the historical record.
-    
-    ---
-    
-    Do NOT explicitly list the policies from the historical record in your final narrative.
+    Relevant Historical Analogies From India (use these to extract patterns, NOT list them):
+    {analogy_text}
+
+    Your task:
+    Write a **single, unified 250–300 word analysis** with the following sections:
+
+    1. Expected Impact & Strategic Value for India
+    - Explain how this policy would affect PM/NOx trends in Indian cities.
+    - Reference historical successes or patterns from similar Indian policies.
+    - Discuss public health impacts and alignment with national missions (NCAP, NEMMP, BS-VI, etc.)
+
+    2. Implementation Challenges (India-Specific)
+    - Discuss enforcement difficulty, compliance gaps, fuel quality issues,
+        manufacturer readiness, consumer resistance, or infrastructure gaps.
+    - Use insights drawn from the historical analogies.
+
+    3. Recommended Next Steps (Actionable)
+    - Give concrete, India-specific steps based on what worked or failed historically.
+    - Include regulatory, industrial, and behavioral recommendations.
+
+    IMPORTANT:
+    Do NOT explicitly name or list the analogy policies.
+    Do NOT include bullet lists of the given analogies.
+    Do NOT output fewer than 230 words or more than 330 words.
     """
 
+
     try:
-        response = ollama_client.generate(
-            model='mistral',
-            prompt=prompt
-        )
+        response = ollama_client.generate(model='mistral', prompt=prompt)
         return response['response'].strip()
     except Exception as e:
-        return f"LLM Generation Error: Could not generate summary. ({e})"
+        return f"LLM Generation Error: {e}"
 
 
-# --- 4. Define the API Endpoint (Final Logic) ---
+# -----------------------------------------------------------
+# FUZZY MATCHING (NEW)
+# -----------------------------------------------------------
+
+def fuzzy_contains(a, b):
+    """Case-insensitive fuzzy match using first 4 characters."""
+    if not isinstance(a, str) or not isinstance(b, str):
+        return False
+    if len(b) < 3:
+        return False
+    return re.search(re.escape(b[:4]), a, re.IGNORECASE) is not None
+
+
+# -----------------------------------------------------------
+# Main Endpoint
+# -----------------------------------------------------------
 
 @router.post("/simulate", response_model=PolicySimulationResponse)
 async def simulate_policy_impact(
-    # INPUT 1: Raw text from the request body
-    policy_text: str = Body(..., media_type='text/plain', description="The raw text of the user's proposed policy."),
-    # INPUT 2: Contextual parameters from the URL query string (NEW)
-    target_pollutants: List[UserPollutant] = Query(
-        [UserPollutant.CARBON_DIOXIDE], # Default selection
-        description="The specific environmental targets (select one or more)."
-    ),
-    policy_year: int = Query(2025, description="The year the policy is proposed for enactment.")
+    policy_text: str = Body(..., media_type='text/plain'),
+    target_pollutants: List[str] = Query(["Air Pollution (PM/NOx)"]),
+    policy_year: int = Query(2025)
 ):
-    """
-    Simulates the impact of a new policy by finding historical analogies and generating a summary.
-    """
     if df_knowledge_base is None or ollama_client is None:
-        raise HTTPException(status_code=503, detail="System is not loaded. Check server logs.")
+        raise HTTPException(status_code=503, detail="System not loaded. Check logs.")
 
-    # Convert user-friendly labels to technical labels for the LLM prompt
-    technical_targets = [POLLUTANT_MAP[p.value] for p in target_pollutants]
+    # --- Normalize pollutant input ---
+    if isinstance(target_pollutants, list):
+        combined = " ".join([str(x) for x in target_pollutants]).strip()
+        target_pollutants = [combined]
 
-    # Step 1: Featurize the user's policy text (This will now work)
+    # Convert to technical labels if available
+    technical_targets = []
+    for p in target_pollutants:
+        mapped = POLLUTANT_MAP.get(p, None)
+        technical_targets.append(mapped if mapped else p)
+
+    # --- LLM Classification ---
     features = get_policy_features(policy_text)
     user_policy_type = features.get('policy_type')
     user_action_type = features.get('action_type')
 
-    # Step 2: Search the Knowledge Base for matches
-    matches = df_knowledge_base[
-        (df_knowledge_base['policy_type'] == user_policy_type) &
-        (df_knowledge_base['action_type'] == user_action_type)
+    # Normalize
+    if isinstance(user_policy_type, list):
+        user_policy_type = " ".join(user_policy_type).strip()
+    if isinstance(user_action_type, list):
+        user_action_type = " ".join(user_action_type).strip()
+
+    # --- FUZZY MATCHING ---
+    df_filtered = df_knowledge_base[
+        df_knowledge_base['policy_type'].apply(lambda x: fuzzy_contains(str(x), user_policy_type)) &
+        df_knowledge_base['action_type'].apply(lambda x: fuzzy_contains(str(x), user_action_type))
     ]
 
-    # Step 3: Format the results
+    matches = df_filtered.copy()
+
+    # --- Build Analogies ---
     analogies = []
     analogy_dicts = []
     if not matches.empty:
-        matches = matches.sort_values(by='Year', ascending=False).head(5) 
+        matches = matches.sort_values(by='Year', ascending=False).head(5)
         for _, row in matches.iterrows():
-            analogy_data = {
-                'policy_name': row['Policy'],
-                'year_enacted': row['Year'],
-                'policy_type': row['policy_type'],
-                'action_type': row['action_type']
-            }
             analogies.append(HistoricalAnalogy(
                 policy_name=row['Policy'],
                 year_enacted=row['Year']
             ))
-            analogy_dicts.append(analogy_data)
+            analogy_dicts.append({
+                "policy_name": row['Policy'],
+                "year_enacted": row['Year'],
+                "policy_type": row['policy_type'],
+                "action_type": row['action_type']
+            })
 
-    # Step 4: Generate the descriptive summary
-    impact_summary = generate_impact_summary(
-        user_policy_type, 
-        user_action_type, 
-        [p.value for p in target_pollutants], # Pass user-friendly names to LLM
+    # --- LLM Summary ---
+    summary = generate_impact_summary(
+        user_policy_type,
+        user_action_type,
+        target_pollutants,
         analogy_dicts
     )
 
-    # Step 5: Return the refined result
+    # --- Final Response ---
     return PolicySimulationResponse(
-        generated_impact_summary=impact_summary,
+        generated_impact_summary=summary,
         user_policy_type=user_policy_type,
         user_action_type=user_action_type,
-        target_pollutants=[p.value for p in target_pollutants], # Return user-friendly names
+        target_pollutants=target_pollutants,
         historical_analogies_found=len(matches),
         analogies=analogies
     )

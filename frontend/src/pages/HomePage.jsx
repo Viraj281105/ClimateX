@@ -1,24 +1,17 @@
-// Removed Vanta.js imports and code, as previously discussed, since we're using video
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Brain, MessageSquare, Beaker, TrendingUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import Footer from '@/components/Footer';
-// No need for 'useEffect' or 'useRef' if Vanta.js is completely removed
-// import { useEffect, useRef } from 'react'; // REMOVE if Vanta.js is fully gone
 
 const HomePage = () => {
-  // REMOVE all Vanta.js related refs and useEffect.
-  // const vantaRef = useRef(null);
-  // const vantaEffect = useRef(null);
-  // useEffect(() => { ... });
-
   const features = [
     {
       icon: TrendingUp,
       title: 'Climate Dashboard',
       description:
-        'Real-time weather & emissions tracking across India with interactive visualizations.',
+        'Real-time weather, emissions, and environmental metrics across India.',
       color: 'from-emerald-500 to-teal-500',
       link: '/dashboard',
     },
@@ -26,7 +19,7 @@ const HomePage = () => {
       icon: Brain,
       title: 'Causal Simulator',
       description:
-        'Predict policy impact using advanced AI and causal inference models.',
+        'Model climate-policy cause–effect pathways using AI-driven inference.',
       color: 'from-cyan-500 to-blue-500',
       link: '/causal-simulator',
     },
@@ -34,7 +27,7 @@ const HomePage = () => {
       icon: MessageSquare,
       title: 'Sentiment Tracker',
       description:
-        'Analyze public opinion on climate policies with real-time sentiment analysis.',
+        'Analyze India’s public sentiment on climate policy with live AI monitoring.',
       color: 'from-amber-500 to-orange-500',
       link: '/sentiment-tracker',
     },
@@ -42,106 +35,114 @@ const HomePage = () => {
       icon: Beaker,
       title: 'Policy Lab',
       description:
-        'Adaptive AI recommendations for evidence-based climate policymaking.',
+        'Adaptive AI-generated recommendations for evidence-backed decisions.',
       color: 'from-emerald-500 to-cyan-500',
       link: '/policy-lab',
     },
   ];
 
   return (
-    // Reverted to a simple div wrapper for the whole page.
-    // The min-h-screen is good to ensure it takes full height.
-    <div className="min-h-screen">
-      
-      {/* 1. Hero Section: This is where the video will live */}
-      <section
-        // This remains with LIGHT text for your dark video
-        className="relative min-h-screen flex flex-col items-center justify-center text-center text-white overflow-hidden pt-16 homepage-hero-section"
-        // This background color will be covered by your dark video
-        style={{ backgroundColor: '#000000' }} 
+    <div className="min-h-screen flex flex-col">
+
+      {/* HERO SECTION */}
+      <section 
+        className="relative min-h-screen flex items-center justify-center text-center text-white overflow-hidden pt-20"
+        style={{ backgroundColor: '#000000' }}
       >
-        {/* 2. Place the video tag directly inside the Hero section */}
-        <video autoPlay loop muted playsInline className="hero-background-video">
-          {/* Ensure this path is correct: /background-video.mp4 needs to be in your 'public' folder */}
+        {/* Background Video */}
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          className="hero-background-video opacity-[0.85]"
+        >
           <source src="/background-video.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
         </video>
 
-        {/* 3. This div contains all your actual content (text, etc.) and needs z-index above the video */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
+        {/* ❌ Removed blur effect */}
+        <div className="absolute inset-0 bg-black/40" />
+
+        <div className="relative z-10 px-6 max-w-5xl mx-auto">
+          <motion.h1
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight drop-shadow-[0_3px_8px_rgba(0,0,0,0.6)]"
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span>ClimateX</span>
-              <br />
-              <span className="text-emerald-400">
-                Real-Time Climate Intelligence
-              </span>
-              <br />
-              <span>for India</span>
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto">
-              Empowering policymakers with AI insights, predictive modeling, and
-              real-time data for sustainable climate action.
-            </p>
-          </motion.div>
+            ClimateX  
+            <div className="mt-2 text-emerald-400">
+              Real-Time Climate Intelligence  
+            </div>
+            <span className="text-white">for India</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed"
+          >
+            Empowering policymakers with AI-driven insights, predictive modeling,  
+            and intelligent climate analytics tailored for India’s unique ecosystem.
+          </motion.p>
+
+          {/* ❌ Removed CTA buttons entirely */}
         </div>
       </section>
 
-      {/* 4. Features Section: Keep its original background and styling */}
-      <section
-        className="py-20 relative"
-        // UPDATED: Set background color as requested
-        style={{ backgroundColor: '#CCF0B9' }} 
+      {/* FEATURES SECTION */}
+      <section 
+        className="py-20 relative" 
+        style={{ backgroundColor: '#CCF0B9' }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-6">
+
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            {/* Dark text is correct for the light green background */}
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-gray-900">
+            <h2 className="text-4xl font-bold text-gray-900 mb-3">
               Powerful Climate Tools
             </h2>
-            <p className="text-lg max-w-2xl mx-auto text-gray-700">
-              Comprehensive suite of AI-powered tools for climate intelligence
-              and policymaking.
+            <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              A comprehensive suite built to empower climate researchers,  
+              policy designers, and innovators shaping India’s green future.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
                 <motion.div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 25 }}
                   whileInView={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -6, scale: 1.03 }}
+                  transition={{ delay: index * 0.08, duration: 0.45 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
                 >
                   <Link to={feature.link}>
                     <Card
-                      className="p-6 h-full flex flex-col cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
-                      // This is your "card" background
-                      style={{ backgroundColor: '#FFFFFF', border: '1px solid #0e3a0f' }}
+                      className="p-6 h-full flex flex-col gap-4 cursor-pointer rounded-xl border border-emerald-900/40
+                                 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-700/20"
+                      style={{ backgroundColor: '#FFFFFF' }}
                     >
                       <div
-                        className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 shadow-lg`}
+                        className={`w-16 h-16 rounded-xl bg-gradient-to-br ${feature.color} 
+                                    flex items-center justify-center shadow-lg`}
                       >
-                        <Icon className="w-7 h-7 text-white" />
+                        <Icon className="w-8 h-8 text-white" />
                       </div>
-                      {/* Dark text is correct for the white card background */}
-                      <h3 className="text-xl font-semibold mb-2 text-gray-900">
+
+                      <h3 className="text-xl font-semibold text-gray-900">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-gray-700">
+
+                      <p className="text-sm text-gray-700 leading-relaxed">
                         {feature.description}
                       </p>
                     </Card>
@@ -153,9 +154,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* 5. Footer: Keep its original background and styling */}
-      {/* UPDATED: Wrapper background color to match features section */}
-      <div className="-mt-20" style={{ backgroundColor: '#CCF0B9' }}>
+      <div style={{ backgroundColor: '#CCF0B9' }}>
         <Footer />
       </div>
     </div>
