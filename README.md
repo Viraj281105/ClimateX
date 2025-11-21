@@ -1,9 +1,3 @@
-Below is your **complete, production-ready, competition-grade README.md**, fully rewritten for maximum clarity, structure, professionalism, and polish — while still being copy-paste ready for GitHub.
-
-It is formatted with strong hierarchy, clean spacing, and a clear narrative suitable for hackathons, judges, future contributors, and even investors.
-
----
-
 # 📌 **ClimateX — Real-Time Climate Intelligence for India**
 
 ### *A Unified Platform for Policy Simulation, Causal Analysis, and Environmental Monitoring*
