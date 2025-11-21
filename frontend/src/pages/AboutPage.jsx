@@ -21,8 +21,8 @@ const team = [
   { name: "Viraj Jadhao", initials: "VJ", bio: "Full-stack dev focused on AI integration and system reliability." },
   { name: "Yash Doke", initials: "YD", bio: "Generative AI specialist — prototype to production." },
   { name: "Bhumi Sirvi", initials: "BS", bio: "UI/UX designer — clarity-first interfaces and accessible flows." },
-  { name: "Lakshya Veer Rana", initials: "LVR", bio: "Frontend craftsman — performance and pixel polish." },
   { name: "Harsh Jain", initials: "HJ", bio: "Data engineer — pipelines, quality, and observability." },
+  { name: "Lakshya Veer Rana", initials: "LVR", bio: "Frontend craftsman — performance and pixel polish." },
 ];
 
 const values = [
