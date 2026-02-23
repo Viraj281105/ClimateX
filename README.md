@@ -4,16 +4,22 @@
 
 **Built for the PCCOE IGC Hackathon**
 
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/Viraj281105/ClimateX/blob/main/LICENSE)
+![Jupyter Notebook](https://img.shields.io/badge/Jupyter%20Notebook-78.8%25-orange)
+![JavaScript](https://img.shields.io/badge/JavaScript-11.8%25-yellow)
+![Python](https://img.shields.io/badge/Python-8.9%25-blue)
+![GitHub stars](https://img.shields.io/github/stars/Viraj281105/ClimateX?style=social)
+
 ---
 
 ## 🧭 **Overview**
 
 **ClimateX** is a next-generation, India-first climate intelligence platform combining:
 
-* **Real-time geospatial monitoring**,
-* **Causal AI models for policy impact estimation**,
-* **Live sentiment analysis**, and
-* **Automated policy recommendations** tailored to Indian states.
+* **Real-time geospatial monitoring**
+* **Causal AI models for policy impact estimation**
+* **Live sentiment analysis**
+* **Automated policy recommendations** tailored to Indian states
 
 The system is intentionally **lightweight, modular, and demo-ready** — optimized to run on mid-tier hardware while delivering high-value analytics.
 
@@ -54,7 +60,7 @@ A fast, simplified causal inference layer that demonstrates:
 
 Supports queries like:
 
-> *“What would be the causal impact on Delhi’s AQI if a Clean Fuel Subsidy policy was adopted in 2025?”*
+> *"What would be the causal impact on Delhi's AQI if a Clean Fuel Subsidy policy was adopted in 2025?"*
 
 The engine uses:
 
@@ -89,10 +95,28 @@ Generates evidence-backed climate policy recommendations using:
 * **Vector search over government reports, MoEFCC PDFs, UN datasets**
 * RAG pipeline built on **SentenceTransformers + FastAPI**
 * Tailored recommendations for:
-
   * State governments
   * Municipal corporations
   * Environmental boards
+
+---
+
+# 🗂️ **Repository Structure**
+
+```
+ClimateX/
+├── backend/            # FastAPI application, routes, ML inference endpoints
+├── frontend/           # React.js UI, Mapbox visualizations, Recharts dashboards
+├── model_artifacts/    # Pre-trained model weights and saved artifacts
+├── notebooks/          # Jupyter notebooks for EDA, model training, causal analysis
+├── scripts/            # Data ingestion, ETL, and utility scripts
+├── services/           # Standalone microservices (sentiment, RAG, causal engine)
+├── requirements.txt    # Python dependencies
+├── reset_db.py         # Database reset utility
+├── pyvenv.cfg          # Python virtual environment config
+├── .gitignore
+└── LICENSE             # MIT License
+```
 
 ---
 
@@ -144,7 +168,6 @@ ClimateX follows a **5-layer modular architecture** for clarity and scalability.
 
 * Cron-based ingestion
 * Public APIs:
-
   * IMD Weather
   * CPCB Air Quality
   * Twitter API v2
@@ -215,22 +238,24 @@ uvicorn main:app --reload
 Runs on:
 👉 `http://localhost:8000/`
 
+> **Note:** A root-level `requirements.txt` is also available for installing all Python dependencies at once from the project root.
+
 ---
 
 ## 🔑 **4. Environment Variables**
 
-Create `.env` files:
+Create `.env` files in their respective directories:
 
-### **Frontend (.env)**
+### **Frontend — `frontend/.env`**
 
-```
+```env
 VITE_WEATHER_API_KEY = <your-openweather-key>
 VITE_MAPBOX_KEY = <your-mapbox-key>
 ```
 
-### **Backend (.env)**
+### **Backend — `backend/.env`**
 
-```
+```env
 OPENWEATHER_API_KEY = <your-key>
 MONGO_URI = <your-mongo-uri>
 POSTGRES_URI = <your-postgres-uri>
@@ -239,20 +264,24 @@ HF_TOKEN = <your-huggingface-token>
 
 ---
 
+## 🗃️ **5. Database Reset (Optional)**
+
+To reset the database to a clean state:
+
+```bash
+python reset_db.py
+```
+
+---
 
 # 📊 **Demo Capabilities**
 
-### ✔ Live AQI & weather map of India
-
-### ✔ State-wise sentiment timeline
-
-### ✔ Policy simulator (counterfactuals, analogies, explanations)
-
-### ✔ Policy recommendation generator
-
-### ✔ Fully responsive UI optimized for hackathon demos
-
-### ✔ 100% offline fallback demo support
+- ✅ Live AQI & weather map of India
+- ✅ State-wise sentiment timeline
+- ✅ Policy simulator (counterfactuals, analogies, explanations)
+- ✅ Policy recommendation generator
+- ✅ Fully responsive UI optimized for hackathon demos
+- ✅ 100% offline fallback demo support
 
 ---
 
@@ -270,15 +299,17 @@ HF_TOKEN = <your-huggingface-token>
 
 # 📣 **Team (ClimateX Development Group)**
 
-* **Viraj Jadhao** — Full-stack + Deployment
-* **Yash Doke** — Generative AI + NLP
-* **Bhumi Sirvi** — UI/UX + Design Systems
-* **Lakshya Veer Rana** — Frontend Engineering
-* **Harsh Jain** — Data Engineering
+| Name                  | Role                    |
+| --------------------- | ----------------------- |
+| **Viraj Jadhao**      | Full-stack + Deployment |
+| **Yash Doke**         | Generative AI + NLP     |
+| **Bhumi Sirvi**       | UI/UX + Design Systems  |
+| **Lakshya Veer Rana** | Frontend Engineering    |
+| **Harsh Jain**        | Data Engineering        |
 
 ---
 
-# 📬 Contact
+# 📬 **Contact**
 
 For queries and contributions:
 
@@ -288,6 +319,12 @@ For queries and contributions:
 
 ---
 
-# ⭐ Final Note
+# ⚖️ **License**
+
+This project is licensed under the **MIT License** — see the [LICENSE](https://github.com/Viraj281105/ClimateX/blob/main/LICENSE) file for details.
+
+---
+
+# ⭐ **Final Note**
 
 ClimateX is a **demo-first, research-driven** platform designed to showcase what modern climate intelligence for India *could* look like — lightweight, transparent, causal, and real-time.
