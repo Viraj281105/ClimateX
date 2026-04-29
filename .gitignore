@@ -2,7 +2,6 @@
 # Ignore all common data file formats
 *.csv
 *.xlsx
-.json
 *.sqlite
 *.db
 
