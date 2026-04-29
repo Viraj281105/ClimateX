@@ -92,32 +92,7 @@ def load_active_topics():
     Falls back to baseline if DB empty.
     """
     records = list(TOPICS_COLLECTION.find({}, {"topic": 1}))
-    semantic_TOPICS = [
-    "air quality india",
-    "bharatmala project",
-    "carbon tax india",
-    "climate change india",
-    "coal mining india",
-    "electric vehicles india",
-    "ganga action plan",
-    "green energy india",
-    "highway policy india",
-    "national solar mission",
-    "national water mission",
-    "net zero india",
-    "renewable energy india",
-    "smart cities mission india",
-    "topic1",
-    "topic2",
-    "topic3",
-    "topic4",
-    "topic5",
-    "topic6",
-    "topic7",
-    "transport emissions india",
-    "waste management india",
-    "water management india"
-]
+    semantic_topics = [rec.get("topic") for rec in records if rec.get("topic")]
 
     if semantic_topics:
         print(f" [OK] Loaded {len(semantic_topics)} semantic topics.")

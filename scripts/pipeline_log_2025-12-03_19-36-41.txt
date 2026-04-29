@@ -1,0 +1,192 @@
+
+--- collect_posts.py started at 2025-12-03 19:37:26.101726 ---
+MongoDB connection successful.
+ [OK] Reddit connected.
+ [OK] Loaded 8 semantic topics.
+
+========= ClimateX Collector Started =========
+ Tracking 8 topics (semantic + baseline)
+
+=== Collecting from Reddit ===
+
+ [Reddit] Searching for: topic1
+
+ [Reddit] Searching for: topic4
+
+ [Reddit] Searching for: topic3
+
+ [Reddit] Searching for: error
+
+ [Reddit] Searching for: topic5
+
+ [Reddit] Searching for: topic6
+
+ [Reddit] Searching for: topic7
+
+ [Reddit] Searching for: topic2
+
+=== Collecting from NewsAPI ===
+
+ [NewsAPI] Topic: topic1
+
+ [NewsAPI] Topic: topic4
+
+ [NewsAPI] Topic: topic3
+
+ [NewsAPI] Topic: error
+
+ [NewsAPI] Topic: topic5
+
+ [NewsAPI] Topic: topic6
+
+ [NewsAPI] Topic: topic7
+
+ [NewsAPI] Topic: topic2
+
+========= Data Collection Completed =========
+
+--- preprocess_posts.py started at 2025-12-03 19:37:29.347179 ---
+MongoDB connection successful.
+ [OK] spaCy English model loaded.
+
+=== Preprocessing Posts ===
+
+ [OK] Processed 91 posts.
+
+--- sentiment_inference_light.py started at 2025-12-03 19:37:30.752288 ---
+MongoDB connection successful.
+Light sentiment inference complete. Updated 91 posts.
+
+--- sentiment_inference_bert.py started at 2025-12-03 19:37:35.522280 ---
+MongoDB connection successful.
+Loading model nlptown/bert-base-multilingual-uncased-sentiment on cpu ...
+BERT sentiment inference complete. Processed documents (approx): 0
+
+--- discover_new_topics.py started at 2025-12-03 19:39:10.587381 ---
+MongoDB connection successful.
+[INFO] Ollama connected.
+[INFO] Fetching recent posts for topic discovery...
+[SCAN] Show HN: deck – Create Google Slides Presentations from Mark ...
+Extracted topics: ['topic1', 'topic2', 'topic3']
+[SCAN] Why Oklahoma football absolutely shouldn’t be in College Foo ...
+Extracted topics: ['topics']
+[SCAN] Development of basic-needs experience and finance-related at ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] New eBPF Filters for Symbiote and BPFdoor Malware ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Human swimming posture recognition combining improved 3D con ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Integrated effects of anaerobic soil disinfestation and bene ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] The effects of ideology and cognitive reflection on evidence ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] The BrainWaves study of adolescent wellbeing and mental heal ...
+No topics extracted.
+[SCAN] Do we advise as one likes? The alignment bias in social advi ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Correction: Development and validation of the health segment ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] ceRNA regulatory network and immune-neurodegenerative mechan ...
+No topics extracted.
+[SCAN] Polo-like kinase 1 regulates growth in juvenile Fasciola hep ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Polar cell membrane nanotubes containing microtubules and ac ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Understanding smartphone use patterns in higher education: A ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] 1 Bold Prediction for Each Game on Week 14 NFL Schedule ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Analyzing first aid in textbooks used by non-medical and par ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Correction: Adult outcomes by parental, school and postcode  ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Frechet-power function distribution:Theory, properties and a ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Understanding the trends, clustering, and risk factors of pi ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Investigating insulin’s role in regulating local aromatase i ...
+No topics extracted.
+[SCAN] Monocyte-eosinophil signaling axis promotes vaccine-mediated ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Fans ask Patrick Mahomes to save the Chiefs' season with an  ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Cannabis Testing Services Market Trends and Growth Strategie ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5', 'topic6']
+[SCAN] wsrf added to PyPI ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Winter weather causes speed-limit restrictions, school closu ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Winter weather causes speed-limit restrictions, school closu ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Rail Vision acquires 51% interest in Quantum Transportation ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5', 'topic6']
+[SCAN] Larry Summers’ sexism is jeopardizing his power and privileg ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Winning lottery ticket worth more than $550,000 sold in East ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5', 'topic6']
+[SCAN] 'Everyone is discontented': GOP insider makes big prediction ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Oil Isn’t Cheap But It Might Become So ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Orphan and the Five Beasts: Bath of Blood #3 Preview: Beast  ...
+No topics extracted.
+[SCAN] 7 ChatGPT Tricks to Automate Your Data Tasks ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5', 'topic6', 'topic7']
+[SCAN] Income Tax: Last date to file revised or belated ITR is 31 D ...
+Extracted topics: ['topic1', 'topic2', 'topic3']
+[SCAN] Get ChatGPT’s Advice On Your Queries with sp_BlitzCache. ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Of course Hitman 4's coming, say devs IO, as they lay ground ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5', 'topic6', 'topic7']
+[SCAN] Road Woe-irrers? Cowboys record away from AT&T needs flippin ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] “Journey prompts” and “destination prompts”: how to avoid be ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5', 'topic6', 'topic7']
+[SCAN] Suppression order lifted on High Country killer's past polic ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] AWS Lambda announces durable functions for multi-step applic ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Why Do We Trust ChatGPT? ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Newcastle United vs Spurs: Match Preview, Latest Team News a ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Big Update On DC Studios' MISTER MIRACLE Animated Series Esc ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Transcript: Trump Press Sec Loses Plot as Boat Bombing Scand ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] 'Second-half capitulation means Man City need to switch on' ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] People Shared The Dreams They Never Gave Up On And These 40  ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] UK budget watchdog head quits over early release of Reeves'  ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Fifa set to use VAR for corners at World Cup ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Pixel-art RTS game TFC: The Fertile Crescent joins with Micr ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] Spatially resolved multi-omics of human metabolic dysfunctio ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5', 'topic6', 'topic7']
+[SCAN] Iran’s capital is moving. The reason is an ecological catast ...
+Extracted topics: ['topic1', 'topic2', 'topic3', 'topic4', 'topic5']
+[SCAN] 
+--- STDERR ---
+Traceback (most recent call last):
+  File "d:\Hackathons\PCCOE IGC\ClimateX\scripts\discover_new_topics.py", line 224, in <module>
+    discover_new_topics()
+  File "d:\Hackathons\PCCOE IGC\ClimateX\scripts\discover_new_topics.py", line 159, in discover_new_topics
+    print("[SCAN]", title_preview, "...")
+  File "C:\Users\VIRAJ\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-29: character maps to <undefined>
+
+--- auto_merge_topics.py ---
+
+Starting topic auto-merge...
+
+Backup created at: backups\collect_posts_backup_2025-12-03_19-39-10.py
+Merge complete. New topics added: 7
+Total topics now: 24
+
+Auto-merge finished.
+

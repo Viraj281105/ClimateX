@@ -117,7 +117,7 @@ def load_active_topics():
     "transport emissions india",
     "waste management india",
     "water management india"
-]
+] for rec in records
 
     if semantic_topics:
         print(f" [OK] Loaded {len(semantic_topics)} semantic topics.")
