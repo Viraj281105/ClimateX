@@ -10,6 +10,7 @@ import PolicyLabPage from "@/pages/PolicyLabPage";
 import AboutPage from "@/pages/AboutPage";
 import CausalSimulator from "@/pages/CausalSimulator";
 import SentimentTracker from "@/pages/SentimentTracker";
+import CarbonInvoicePage from "@/pages/CarbonInvoicePage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/causal-simulator" element={<CausalSimulator />} />
           <Route path="/sentiment-tracker" element={<SentimentTracker />} />
+          <Route path="/carbon-invoice" element={<CarbonInvoicePage />} />
         </Routes>
         <Toaster position="top-right" />
       </BrowserRouter>

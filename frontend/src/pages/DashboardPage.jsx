@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const [progress, setProgress] = useState(0);
 
   // --- 1. State for Advanced Features ---
+  const [mapTab, setMapTab] = useState("map"); // "map" or "globe"
   const [liveLogs, setLiveLogs] = useState([]);
   const [anomalies, setAnomalies] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("Delhi-NCR");
@@ -42,6 +43,7 @@ export default function DashboardPage() {
   const [forecastData, setForecastData] = useState([]);
   const [forecastTab, setForecastTab] = useState("Carbon Dioxide Emissions");
 
+  const [activeGlobeNode, setActiveGlobeNode] = useState(null);
   const wsRef = useRef(null);
 
   // Scroll Progress
@@ -326,26 +328,88 @@ export default function DashboardPage() {
         {/* 2. GRID: Map Overview + Live Telemetry Stream Terminal */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           
-          {/* Geospatial Map */}
+          {/* Geospatial Map & Holographic Globe Card */}
           <motion.div
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             className="lg:col-span-2"
           >
-            <Card className="p-6 shadow-sm border border-emerald-200/60 rounded-2xl overflow-hidden bg-white">
-              <div className="flex items-center justify-between mb-4">
+            <Card className="p-6 shadow-sm border border-emerald-200/60 rounded-2xl overflow-hidden bg-white flex flex-col h-full">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                   <Activity className="w-5 h-5 text-emerald-500 animate-pulse" />
-                  <span>Geospatial Weather Sensor Layers</span>
+                  <span>Sentinel Geospatial Console</span>
                 </h2>
-                <div className="text-xs font-mono text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2 py-1 rounded">
-                  PUNE CORE NODE
+                
+                {/* Tab select */}
+                <div className="flex bg-emerald-100/60 border border-emerald-200 p-0.5 rounded-lg text-xs font-mono font-bold text-emerald-800">
+                  <button
+                    onClick={() => setMapTab("map")}
+                    className={`px-3 py-1 rounded-md transition ${mapTab === "map" ? "bg-white shadow-sm" : ""}`}
+                  >
+                    Weather Map
+                  </button>
+                  <button
+                    onClick={() => setMapTab("globe")}
+                    className={`px-3 py-1 rounded-md transition ${mapTab === "globe" ? "bg-white shadow-sm animate-pulse" : ""}`}
+                  >
+                    Holo Globe
+                  </button>
                 </div>
               </div>
 
-              {/* Map Box */}
-              <div className="rounded-xl overflow-hidden border border-emerald-100 shadow-inner h-[380px]">
-                <WeatherMap />
+              {/* Console window content */}
+              <div className="rounded-xl overflow-hidden border border-emerald-100 shadow-inner h-[380px] relative bg-slate-950 flex items-center justify-center">
+                {mapTab === "map" ? (
+                  <div className="w-full h-full">
+                    <WeatherMap />
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-4 text-white relative">
+                    {/* Spinning SVG Globe */}
+                    <svg className="w-64 h-64 select-none relative" viewBox="0 0 300 300">
+                      <circle cx="150" cy="150" r="110" fill="none" stroke="#059669" strokeWidth="1" strokeDasharray="5 5" />
+                      <circle cx="150" cy="150" r="95" fill="none" stroke="#10b981" strokeWidth="1.5" className="opacity-50" />
+                      
+                      {/* Grid lines */}
+                      <ellipse cx="150" cy="150" rx="95" ry="30" fill="none" stroke="#a7f3d0" strokeWidth="1" className="opacity-40 animate-[spin_8s_linear_infinite]" />
+                      <ellipse cx="150" cy="150" rx="30" ry="95" fill="none" stroke="#a7f3d0" strokeWidth="1" className="opacity-40 animate-[spin_12s_linear_infinite]" />
+                      
+                      {/* Nodes / Stations */}
+                      {[
+                        { name: "Delhi Node", x: 140, y: 90, desc: "Delhi-NCR ground grid. Status: PM2.5 Alert active." },
+                        { name: "Pune Core Node", x: 120, y: 170, desc: "Pune core telemetry feed. Status: Operational." },
+                        { name: "Kolkata Node", x: 210, y: 140, desc: "East regional monitor. Status: Standby." },
+                        { name: "Mumbai Node", x: 90, y: 180, desc: "Mumbai coastal anomalies feed. Status: Rain watch." }
+                      ].map((node) => (
+                        <g 
+                          key={node.name} 
+                          transform={`translate(${node.x}, ${node.y})`}
+                          className="cursor-pointer group"
+                          onClick={() => setActiveGlobeNode(node)}
+                        >
+                          <circle r="6" fill="#047857" className="animate-ping opacity-75" />
+                          <circle r="4" fill="#34d399" />
+                          <text x="8" y="4" className="text-[8px] font-mono fill-emerald-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {node.name}
+                          </text>
+                        </g>
+                      ))}
+                    </svg>
+
+                    {/* Active Globe Node Details HUD overlay */}
+                    <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 border border-emerald-500/40 rounded-xl p-3 text-[10px] font-mono text-emerald-400">
+                      {activeGlobeNode ? (
+                        <div>
+                          <strong className="text-emerald-300 uppercase block">{activeGlobeNode.name} Active</strong>
+                          <p className="mt-0.5 text-[9px] text-slate-300">{activeGlobeNode.desc}</p>
+                        </div>
+                      ) : (
+                        <span className="text-[9px] text-slate-400">Hover or click glowing nodes on the wireframe grid to establish data link.</span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </Card>
           </motion.div>
