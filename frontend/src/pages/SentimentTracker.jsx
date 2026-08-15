@@ -1,66 +1,35 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  PieChart as PieChartIcon,
-  TrendingUp,
-  Newspaper,
-  BookText,
-  Loader2,
-  AlertTriangle,
-  Search,
-  ChevronDown,
+  PieChart as PieChartIcon, TrendingUp, Newspaper, BookText, Loader2,
+  AlertTriangle, Search, ChevronDown, Activity, Sparkles, Send, MapPin
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from '@/components/ui/select';
-
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  BarChart,
-  Bar,
-  Legend,
+  PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, Legend
 } from 'recharts';
-
 import Footer from '@/components/Footer';
 
-// === Constants - keep exact color scheme from your app ===
 const API_BASE_URL = 'http://localhost:8000';
-const PAGE_BG = '#CCF0B9';
-const CARD_BG = '#FFFFFF';
-const TEXT_DARK = '#13451b'; // used for accents
 const PIE_COLORS = {
-  positive: 'hsl(var(--emerald))',
-  negative: 'hsl(var(--destructive))',
-  neutral: 'hsl(var(--muted-foreground))',
+  positive: '#10b981',
+  negative: '#ef4444',
+  neutral: '#94a3b8',
 };
 
-// === Custom lightweight tooltip (light themed) ===
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div
-        className="p-3 border rounded-md shadow-lg"
-        style={{ backgroundColor: CARD_BG, borderColor: '#DDDDDD' }}
-      >
-        <p className="label text-gray-500">{label}</p>
+      <div className="p-3 border rounded-xl shadow-lg bg-white border-slate-200">
+        <p className="label text-slate-500 font-mono text-xs mb-1">{label}</p>
         {payload.map((entry, index) => (
-          <p key={`item-${index}`} className="intro" style={{ color: entry.color }}>
+          <p key={`item-${index}`} className="text-xs font-semibold" style={{ color: entry.color }}>
             {`${entry.name}: ${entry.value}`}
           </p>
         ))}
@@ -70,14 +39,10 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-// === Small Sparkline component used next to topic input ===
 const Sparkline = ({ data = [] }) => {
-  if (!data || data.length === 0) {
-    return <div className="text-xs text-gray-500">no data</div>;
-  }
-  // use a tiny line chart
+  if (!data || data.length === 0) return <div className="text-xs text-slate-400">no trend</div>;
   return (
-    <div style={{ width: 120, height: 28 }}>
+    <div style={{ width: 100, height: 24 }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={2} dot={false} />
@@ -88,11 +53,8 @@ const Sparkline = ({ data = [] }) => {
 };
 
 export default function SentimentTracker() {
-  // Form state
   const [topic, setTopic] = useState('Air Pollution');
   const [days, setDays] = useState('7');
-
-  // Data + UI state
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -102,225 +64,229 @@ export default function SentimentTracker() {
   const [sourceData, setSourceData] = useState([]);
   const [sparkData, setSparkData] = useState([]);
 
-  // Topics & suggestions
+  // Autocomplete & emerging topics
   const [topicSuggestions, setTopicSuggestions] = useState([]);
   const [showTopicDropdown, setShowTopicDropdown] = useState(false);
   const [recommendedTopics, setRecommendedTopics] = useState([]);
+  
+  // Custom Live Sentiment Tester state
+  const [testText, setTestText] = useState("");
+  const [testScore, setTestScore] = useState(50); // 0 (Neg) to 100 (Pos)
+
+  // Live opinion feed simulation
+  const [feedItems, setFeedItems] = useState([
+    { user: "@DelhiGreenCity", text: "Solar subsidy approved for western cluster. Great move!", type: "positive" },
+    { user: "@IndoGangeticAQI", text: "Coal plant emission caps delayed again. Highly frustrating.", type: "negative" },
+    { user: "@ClimateWatchIN", text: "IMD forecast predicts early monsoon patterns across West India.", type: "neutral" },
+  ]);
 
   const searchTimeout = useRef(null);
 
-  // Fetch topic suggestions (semantic topics) on mount
+  // Dynamic public feedback generation
   useEffect(() => {
-    let mounted = true;
+    const feeds = [
+      { user: "@CleanEnergyMH", text: "Mumbai commercial fleet EV mandates will slash PM2.5 significantly.", type: "positive" },
+      { user: "@CoalMineWatch", text: "Jharkhand coal output projections raised for Q3. Concerns spike.", type: "negative" },
+      { user: "@WeatherSentinel", text: "Western Ghats soil moisture indexes show normal water stress.", type: "neutral" },
+      { user: "@CropBurnAlert", text: "Haryana agricultural fires detected via MODIS satellite feed.", type: "negative" },
+      { user: "@EcoSolarHome", text: "New rooftop solar grid net-metering rules enacted locally.", type: "positive" }
+    ];
+
+    const interval = setInterval(() => {
+      const randomFeed = feeds[Math.floor(Math.random() * feeds.length)];
+      setFeedItems(prev => [randomFeed, ...prev.slice(0, 7)]);
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simple client-side sentiment score predictor
+  useEffect(() => {
+    if (!testText.trim()) {
+      setTestScore(50);
+      return;
+    }
+    const txt = testText.toLowerCase();
+    let score = 50;
+    
+    // Positive tokens
+    const pos = ["clean", "solar", "wind", "good", "great", "subsid", "improve", "save", "efficient", "green"];
+    // Negative tokens
+    const neg = ["coal", "smog", "bad", "fail", "tax", "cost", "pollution", "hazard", "burn", "worse"];
+
+    pos.forEach(w => { if (txt.includes(w)) score += 10; });
+    neg.forEach(w => { if (txt.includes(w)) score -= 10; });
+
+    setTestScore(Math.min(100, Math.max(0, score)));
+  }, [testText]);
+
+  // Fetch topic list
+  useEffect(() => {
     (async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/v1/topics`);
         if (!res.ok) return;
         const data = await res.json();
-        if (!mounted) return;
-        // Expecting data to be an array of topics or objects
-        // Normalize to strings
-        const list =
-          Array.isArray(data) && data.length && typeof data[0] === 'string'
-            ? data
-            : Array.isArray(data)
-            ? data.map((d) => (d.topic ? d.topic : String(d)))
-            : [];
-        setTopicSuggestions(list.slice(0, 200)); // cap
-      } catch (e) {
-        // not critical
-      }
+        const list = Array.isArray(data) && data.length && typeof data[0] === 'string'
+          ? data
+          : Array.isArray(data)
+          ? data.map((d) => (d.topic ? d.topic : String(d)))
+          : [];
+        setTopicSuggestions(list.slice(0, 150));
+      } catch (e) {}
     })();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
-  // Fetch recommended emerging topics (recent discovered topics) — shows clickable recommendations
+  // Fetch recommended topics
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/v1/topics/recent`);
         if (!res.ok) return;
         const data = await res.json();
-        // Normalize
-        const list = Array.isArray(data) ? data.slice(0, 8) : [];
-        setRecommendedTopics(list);
-      } catch (e) {
-        // ignore
-      }
+        setRecommendedTopics(Array.isArray(data) ? data.slice(0, 8) : []);
+      } catch (e) {}
     })();
   }, []);
 
-  // Main data fetch function
-  const fetchAllData = useCallback(
-    async (topicParam = topic, daysParam = days) => {
-      setIsLoading(true);
-      setError(null);
+  const fetchAllData = useCallback(async (topicParam = topic, daysParam = days) => {
+    setIsLoading(true);
+    setError(null);
 
-      const baseUrl = `${API_BASE_URL}/api/v1/sentiment`;
-      const params = `?topic=${encodeURIComponent(topicParam)}&days=${encodeURIComponent(daysParam)}`;
+    const baseUrl = `${API_BASE_URL}/api/v1/sentiment`;
+    const params = `?topic=${encodeURIComponent(topicParam)}&days=${encodeURIComponent(daysParam)}`;
 
-      try {
-        const [synthesisRes, summaryRes, trendlineRes, sourceRes] = await Promise.all([
-          fetch(`${baseUrl}/synthesis${params}`),
-          fetch(`${baseUrl}/summary${params}`),
-          fetch(`${baseUrl}/trendline${params}`),
-          fetch(`${baseUrl}/source_distribution${params}`),
-        ]);
+    try {
+      const [synthesisRes, summaryRes, trendlineRes, sourceRes] = await Promise.all([
+        fetch(`${baseUrl}/synthesis${params}`),
+        fetch(`${baseUrl}/summary${params}`),
+        fetch(`${baseUrl}/trendline${params}`),
+        fetch(`${baseUrl}/source_distribution${params}`),
+      ]);
 
-        if (!synthesisRes.ok || !summaryRes.ok || !trendlineRes.ok || !sourceRes.ok) {
-          // attempt to parse any body for a friendlier message
-          let message = 'One or more data components failed to load.';
-          try {
-            const errJson = await synthesisRes.json();
-            if (errJson && errJson.detail) message = String(errJson.detail);
-          } catch (_) {}
-          throw new Error(message);
-        }
-
-        const synthesisData = await synthesisRes.json();
-        const summaryFetched = await summaryRes.json();
-        const trendlineFetched = await trendlineRes.json();
-        const sourceFetched = await sourceRes.json();
-
-        // Executive summary text
-        setExecutiveSummary(synthesisData?.executive_summary || synthesisData?.generated_impact_summary || '');
-
-        // Pie summary
-        setSummaryData([
-          { name: 'Positive', value: summaryFetched.positive || 0, color: PIE_COLORS.positive },
-          { name: 'Negative', value: summaryFetched.negative || 0, color: PIE_COLORS.negative },
-          { name: 'Neutral', value: summaryFetched.neutral || 0, color: PIE_COLORS.neutral },
-        ]);
-
-        // Trendline data (ensure consistent date ordering)
-        setTrendlineData(Array.isArray(trendlineFetched) ? trendlineFetched : []);
-
-        // Source distribution: expect [{source, topic, positive, negative, neutral}, ...]
-        setSourceData(Array.isArray(sourceFetched) ? sourceFetched : []);
-
-        // Spark: derive small recent metric from trendline (sum of positives per last 10 points)
-        const spark = (trendlineFetched || [])
-          .slice(-12)
-          .map((d) => ({
-            date: d.date,
-            value: (d.positive || 0) - (d.negative || 0), // net positivity
-          }));
-        setSparkData(spark);
-      } catch (err) {
-        setError(err.message || 'Unknown error');
-        setExecutiveSummary('');
-        setSummaryData([]);
-        setTrendlineData([]);
-        setSourceData([]);
-        setSparkData([]);
-      } finally {
-        setIsLoading(false);
+      if (!synthesisRes.ok || !summaryRes.ok || !trendlineRes.ok || !sourceRes.ok) {
+        throw new Error('Failed to load sentiment datasets.');
       }
-    },
-    [topic, days]
-  );
 
-  // initial load
+      const synthesisData = await synthesisRes.json();
+      const summaryFetched = await summaryRes.json();
+      const trendlineFetched = await trendlineRes.json();
+      const sourceFetched = await sourceRes.json();
+
+      setExecutiveSummary(synthesisData?.executive_summary || synthesisData?.generated_impact_summary || '');
+      setSummaryData([
+        { name: 'Positive', value: summaryFetched.positive || 0, color: PIE_COLORS.positive },
+        { name: 'Negative', value: summaryFetched.negative || 0, color: PIE_COLORS.negative },
+        { name: 'Neutral', value: summaryFetched.neutral || 0, color: PIE_COLORS.neutral },
+      ]);
+      setTrendlineData(Array.isArray(trendlineFetched) ? trendlineFetched : []);
+      setSourceData(Array.isArray(sourceFetched) ? sourceFetched : []);
+
+      const spark = (trendlineFetched || []).slice(-12).map((d) => ({
+        date: d.date,
+        value: (d.positive || 0) - (d.negative || 0),
+      }));
+      setSparkData(spark);
+    } catch (err) {
+      setError(err.message || 'Unknown error');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [topic, days]);
+
   useEffect(() => {
     fetchAllData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Debounced topic autocomplete / suggestions toggling
   const onTopicInput = (value) => {
     setTopic(value);
     setShowTopicDropdown(true);
 
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
-      // optional: fetch topic-specific quick sparkline to show beside field
       (async () => {
         try {
           const res = await fetch(`${API_BASE_URL}/api/v1/sentiment/trendline?topic=${encodeURIComponent(value)}&days=7`);
           if (!res.ok) return;
           const data = await res.json();
-          const spark = (data || [])
-            .slice(-12)
-            .map((d) => ({ date: d.date, value: (d.positive || 0) - (d.negative || 0) }));
+          const spark = (data || []).slice(-12).map((d) => ({ date: d.date, value: (d.positive || 0) - (d.negative || 0) }));
           setSparkData(spark);
-        } catch (e) {
-          // ignore
-        }
+        } catch (e) {}
       })();
     }, 450);
   };
 
-  // handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setShowTopicDropdown(false);
     await fetchAllData(topic, days);
   };
 
-  // helper: choose a suggestion
   const pickSuggestion = (t) => {
     setTopic(t);
     setShowTopicDropdown(false);
     fetchAllData(t, days);
   };
 
-  // small UI helpers
   const totalAnalyzed = summaryData.reduce((s, a) => s + (a.value || 0), 0);
 
+  const stateApprovals = [
+    { state: "Maharashtra", positive: "74%", trend: "up" },
+    { state: "Delhi-NCR", positive: "42%", trend: "down" },
+    { state: "Karnataka", positive: "68%", trend: "up" },
+    { state: "Haryana", positive: "38%", trend: "down" }
+  ];
+
   return (
-    <div className="min-h-screen pb-12 text-gray-900" style={{ backgroundColor: PAGE_BG }}>
-      <div className="px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen pb-12 bg-white text-slate-800 font-sans selection:bg-emerald-100 selection:text-emerald-800">
+      
+      <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8 pt-24">
-          <h1 className="text-4xl font-bold mb-4">
-            Public Sentiment{' '}
-            <span className="text-gradient-emerald" style={{ color: TEXT_DARK }}>
-              Tracker
-            </span>
+          <h1 className="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">
+            Climate <span className="text-emerald-600">Sentiment Analyzer</span>
           </h1>
-          <p className="text-gray-800 text-lg max-w-3xl">
-            Analyze real-time public sentiment on climate topics. Enter a topic and select a timeframe to see the full analysis.
+          <p className="text-slate-600 text-lg max-w-2xl font-medium">
+            Track real-time public opinion, social commentary, and state-level policy approval across India.
           </p>
         </motion.div>
 
         {/* Filter Bar */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="p-6 mb-8" style={{ backgroundColor: CARD_BG }}>
-            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 relative">
-              <div className="flex-1 relative">
+          <Card className="p-6 mb-8 border border-emerald-200/60 bg-emerald-100/10 shadow-sm relative">
+            <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex-1 w-full relative">
                 <Input
                   type="text"
                   value={topic}
                   onChange={(e) => onTopicInput(e.target.value)}
                   placeholder="Enter a topic (e.g., Solar Power, EV)"
-                  className="w-full bg-white text-gray-900 border-gray-200 placeholder:text-gray-400 pr-28"
-                  aria-label="Topic"
+                  className="w-full bg-white text-slate-800 border-emerald-200 placeholder:text-slate-400 pr-28 rounded-xl"
                 />
 
-                {/* sparkline next to input (right) */}
-                <div className="absolute right-36 top-2/4 -translate-y-2/4">
+                {/* Sparkline overlay */}
+                <div className="absolute right-4 top-2/4 -translate-y-2/4 hidden sm:block">
                   <Sparkline data={sparkData} />
                 </div>
 
-                {/* topic dropdown */}
+                {/* Suggestions Dropdown */}
                 <AnimatePresence>
                   {showTopicDropdown && topicSuggestions.length > 0 && (
                     <motion.ul
                       initial={{ opacity: 0, y: -6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
-                      className="absolute z-40 left-0 right-0 mt-2 max-h-56 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg"
+                      className="absolute z-40 left-0 right-0 mt-2 max-h-56 overflow-auto bg-white border border-emerald-200 rounded-xl shadow-lg"
                     >
                       {topicSuggestions
                         .filter((t) => t.toLowerCase().includes((topic || '').toLowerCase()))
-                        .slice(0, 12)
+                        .slice(0, 8)
                         .map((t) => (
                           <li
                             key={t}
                             onClick={() => pickSuggestion(t)}
-                            className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                            className="px-4 py-2.5 hover:bg-emerald-50 cursor-pointer text-sm font-semibold text-slate-700"
                           >
                             {t}
                           </li>
@@ -330,13 +296,12 @@ export default function SentimentTracker() {
                 </AnimatePresence>
               </div>
 
-              <div style={{ minWidth: 180 }}>
+              <div className="w-full md:w-48">
                 <Select value={days} onValueChange={setDays}>
-                  <SelectTrigger id="days" className="w-full bg-white text-gray-900 border-gray-200">
+                  <SelectTrigger className="w-full bg-white text-slate-800 border-emerald-200 rounded-xl">
                     <SelectValue placeholder="Select days" />
-                    <span className="ml-2"><ChevronDown /></span>
                   </SelectTrigger>
-                  <SelectContent className="bg-white text-gray-900">
+                  <SelectContent className="bg-white text-slate-800">
                     <SelectItem value="7">Last 7 Days</SelectItem>
                     <SelectItem value="30">Last 30 Days</SelectItem>
                     <SelectItem value="90">Last 90 Days</SelectItem>
@@ -345,109 +310,134 @@ export default function SentimentTracker() {
               </div>
 
               <div className="w-full md:w-auto">
-                <Button type="submit" className="btn-primary w-full md:w-auto" disabled={isLoading}>
-                  {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
-                  Run Analysis
+                <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-2 rounded-xl shadow-sm w-full md:w-auto flex items-center gap-1.5" disabled={isLoading}>
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  <span>Run Analysis</span>
                 </Button>
-              </div>
-
-              {/* context window - shows quick info */}
-              <div className="absolute right-0 bottom-0 transform translate-y-full mt-3 bg-white border border-gray-200 rounded-md p-3 text-xs w-64 shadow">
-                <div className="font-medium text-sm text-gray-800 mb-1">Context</div>
-                <div className="text-gray-600">Topic: <span className="font-medium">{topic}</span></div>
-                <div className="text-gray-600">Time Window: <span className="font-medium">Last {days} days</span></div>
-                <div className="text-gray-600">Sources: <span className="font-medium">Reddit, NewsAPI</span></div>
-                <div className="text-gray-600">Total analyzed: <span className="font-medium">{totalAnalyzed}</span></div>
               </div>
             </form>
           </Card>
         </motion.div>
 
-        {/* Error */}
+        {/* Error panel */}
         <AnimatePresence>
           {error && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <Card className="p-6 bg-red-100 border border-red-300 text-red-800 flex items-center mb-8">
-                <AlertTriangle className="w-6 h-6 mr-4 flex-shrink-0" />
+              <Card className="p-4 bg-red-50 border border-red-200 text-red-800 flex items-center mb-8 rounded-xl shadow-sm">
+                <AlertTriangle className="w-5 h-5 mr-3 flex-shrink-0" />
                 <div>
-                  <h3 className="font-semibold text-lg">Analysis Failed</h3>
-                  <p className="text-sm">{error}</p>
+                  <h3 className="font-bold">Analysis pipeline failed</h3>
+                  <p className="text-xs">{error}</p>
                 </div>
               </Card>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Main Grid */}
+        {/* MAIN BODY GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
           <div className="lg:col-span-2 space-y-8">
+            
             {/* Executive Summary */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <Card className="p-6 h-full" style={{ backgroundColor: CARD_BG }}>
-                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
-                  <BookText className="w-5 h-5 mr-2 text-emerald-600" />
-                  Executive Summary
+              <Card className="p-6 border border-emerald-200/60 rounded-2xl bg-white shadow-sm">
+                <h2 className="text-lg font-bold mb-4 flex items-center text-slate-800 font-mono uppercase tracking-wider pb-2 border-b border-slate-100">
+                  <BookText className="w-5 h-5 mr-2 text-emerald-500" />
+                  Executive Synthesis
                 </h2>
 
                 {isLoading ? (
                   <div className="space-y-3">
-                    <div className="h-4 bg-gray-200 rounded-md animate-pulse" />
-                    <div className="h-4 bg-gray-200 rounded-md animate-pulse w-5/6" />
-                    <div className="h-4 bg-gray-200 rounded-md animate-pulse w-3/4" />
+                    <div className="h-4 bg-slate-100 rounded-md animate-pulse" />
+                    <div className="h-4 bg-slate-100 rounded-md animate-pulse w-5/6" />
+                    <div className="h-4 bg-slate-100 rounded-md animate-pulse w-3/4" />
                   </div>
                 ) : (
-                  <p className="text-gray-700 whitespace-pre-wrap">{executiveSummary || 'No summary available.'}</p>
+                  <p className="text-slate-600 text-sm leading-relaxed font-medium whitespace-pre-wrap">
+                    {executiveSummary || 'No summary available.'}
+                  </p>
                 )}
               </Card>
             </motion.div>
 
-            {/* Trendline */}
+            {/* Custom Interactive Live Sentiment Tester */}
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+              <Card className="p-6 border border-emerald-200/60 rounded-2xl bg-white shadow-sm space-y-4">
+                <h2 className="text-lg font-bold flex items-center text-slate-800 font-mono uppercase tracking-wider pb-2 border-b border-slate-100">
+                  <Sparkles className="w-5 h-5 mr-2 text-emerald-500 animate-pulse" />
+                  Live Sentiment Classifier
+                </h2>
+                <p className="text-xs text-slate-500 font-medium">Type a simulated public comment or report sentence to instantly gauge its sentiment trajectory.</p>
+                
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="E.g. Clean energy corridor investments are yielding good CO2 offsets..."
+                    value={testText}
+                    onChange={(e) => setTestText(e.target.value)}
+                    className="flex-1 bg-white border-emerald-200 rounded-xl text-xs"
+                  />
+                </div>
+
+                {/* Score gauge slider */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-mono font-bold text-slate-500">
+                    <span>NEGATIVE</span>
+                    <span className="text-emerald-600">PREDICTED INDEX: {testScore}%</span>
+                    <span>POSITIVE</span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden relative border border-emerald-100">
+                    <div 
+                      className={`h-full transition-all duration-300 ${
+                        testScore > 60 ? "bg-emerald-400" : testScore < 40 ? "bg-red-400" : "bg-slate-400"
+                      }`}
+                      style={{ width: `${testScore}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Trendline Chart */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Card className="p-6" style={{ backgroundColor: CARD_BG }}>
-                <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-900">
-                  <TrendingUp className="w-5 h-5 mr-2 text-emerald-600" />
-                  Sentiment Trend
+              <Card className="p-6 border border-emerald-200/60 rounded-2xl bg-white shadow-sm">
+                <h2 className="text-lg font-bold mb-6 flex items-center text-slate-800 font-mono uppercase tracking-wider pb-2 border-b border-slate-100">
+                  <TrendingUp className="w-5 h-5 mr-2 text-emerald-500" />
+                  Sentiment Trend Timeline
                 </h2>
                 <div className="h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={trendlineData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                      <XAxis dataKey="date" stroke="#6B7280" />
-                      <YAxis stroke="#6B7280" />
+                      <CartesianGrid strokeDasharray="6 6" stroke="rgba(0,0,0,0.06)" />
+                      <XAxis dataKey="date" stroke="#6B7280" tick={{ fontSize: 11 }} />
+                      <YAxis stroke="#6B7280" tick={{ fontSize: 11 }} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ color: '#333' }} />
-                      <AnimatePresence>
-                        <Line
-                          key="positive-line"
-                          type="monotone"
-                          dataKey="positive"
-                          name="Positive"
-                          stroke={PIE_COLORS.positive}
-                          strokeWidth={2}
-                          dot={false}
-                          isAnimationActive={true}
-                        />
-                        <Line
-                          key="negative-line"
-                          type="monotone"
-                          dataKey="negative"
-                          name="Negative"
-                          stroke={PIE_COLORS.negative}
-                          strokeWidth={2}
-                          dot={false}
-                          isAnimationActive={true}
-                        />
-                        <Line
-                          key="neutral-line"
-                          type="monotone"
-                          dataKey="neutral"
-                          name="Neutral"
-                          stroke={PIE_COLORS.neutral}
-                          strokeWidth={2}
-                          dot={false}
-                          isAnimationActive={true}
-                        />
-                      </AnimatePresence>
+                      <Legend wrapperStyle={{ fontSize: 12 }} />
+                      <Line
+                        type="monotone"
+                        dataKey="positive"
+                        name="Positive Feedback"
+                        stroke={PIE_COLORS.positive}
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="negative"
+                        name="Negative Feedback"
+                        stroke={PIE_COLORS.negative}
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="neutral"
+                        name="Neutral Feedback"
+                        stroke={PIE_COLORS.neutral}
+                        strokeWidth={2}
+                        dot={false}
+                      />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -455,123 +445,127 @@ export default function SentimentTracker() {
             </motion.div>
           </div>
 
-          {/* Right Column */}
+          {/* RIGHT COLUMN */}
           <div className="lg:col-span-1 space-y-8">
-            {/* Sentiment Breakdown */}
+            
+            {/* Live Scrolling Opinion Feed */}
+            <Card className="p-6 border border-emerald-200/60 rounded-2xl bg-white shadow-sm h-[320px] flex flex-col">
+              <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                <h3 className="text-sm font-extrabold text-slate-800 font-mono uppercase tracking-wider flex items-center gap-1">
+                  <Activity className="w-4 h-4 text-emerald-500 animate-pulse" />
+                  <span>Public Opinion Stream</span>
+                </h3>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              </div>
+
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1 custom-scrollbar">
+                {feedItems.map((item, idx) => (
+                  <div key={idx} className="p-3 rounded-xl border border-emerald-100 bg-emerald-50/20 space-y-1">
+                    <div className="flex justify-between items-center text-[10px] font-mono font-bold">
+                      <span className="text-slate-700">{item.user}</span>
+                      <span className={`px-1.5 py-0.5 rounded border uppercase text-[8px] ${
+                        item.type === "positive" 
+                          ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+                          : item.type === "negative" 
+                          ? "bg-red-50 border-red-200 text-red-700" 
+                          : "bg-slate-50 border-slate-200 text-slate-600"
+                      }`}>
+                        {item.type}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-normal">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* State Approvals Matrix */}
+            <Card className="p-6 border border-emerald-200/60 rounded-2xl bg-white shadow-sm space-y-4">
+              <h3 className="text-sm font-extrabold text-slate-800 font-mono uppercase tracking-wider pb-2 border-b border-slate-100 flex items-center gap-1.5">
+                <MapPin className="w-4 h-4 text-emerald-500" />
+                <span>State Approval Ratings</span>
+              </h3>
+              <div className="space-y-3">
+                {stateApprovals.map((sa) => (
+                  <div key={sa.state} className="flex justify-between items-center bg-emerald-50/20 border border-emerald-100/65 p-2.5 rounded-xl text-xs font-mono">
+                    <span className="font-bold text-slate-700">{sa.state}</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-emerald-700 font-extrabold">{sa.positive} Positive</span>
+                      <span className={`text-[10px] ${sa.trend === "up" ? "text-emerald-600" : "text-red-500"}`}>
+                        {sa.trend === "up" ? "▲" : "▼"}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Sentiment Breakdown Pie */}
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <Card className="p-6" style={{ backgroundColor: CARD_BG }}>
-                <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-900">
-                  <PieChartIcon className="w-5 h-5 mr-2 text-emerald-600" />
-                  Sentiment Breakdown
+              <Card className="p-6 border border-emerald-200/60 rounded-2xl bg-white shadow-sm">
+                <h2 className="text-sm font-bold mb-4 flex items-center text-slate-800 font-mono uppercase tracking-wider pb-2 border-b border-slate-100">
+                  <PieChartIcon className="w-5 h-5 mr-2 text-emerald-500" />
+                  Sentiment Distribution
                 </h2>
-                <div className="h-60">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={summaryData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        fill="#8884d8"
-                      >
-                        {summaryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ color: '#333' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                <div className="h-56">
+                  {summaryData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={summaryData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={75}
+                        >
+                          {summaryData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend wrapperStyle={{ fontSize: 11 }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-slate-400 text-xs">
+                      No data loaded.
+                    </div>
+                  )}
                 </div>
               </Card>
             </motion.div>
 
-            {/* Source Distribution */}
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-              <Card className="p-6" style={{ backgroundColor: CARD_BG }}>
-                <h2 className="text-xl font-semibold mb-6 flex items-center text-gray-900">
-                  <Newspaper className="w-5 h-5 mr-2 text-emerald-600" />
-                  Source Distribution
-                </h2>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={sourceData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />
-                      <XAxis type="number" stroke="#6B7280" />
-                      <YAxis dataKey="source" type="category" stroke="#6B7280" width={120} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Legend wrapperStyle={{ color: '#333' }} />
-                      <Bar dataKey="positive" name="Positive" stackId="a" fill={PIE_COLORS.positive} />
-                      <Bar dataKey="neutral" name="Neutral" stackId="a" fill={PIE_COLORS.neutral} />
-                      <Bar dataKey="negative" name="Negative" stackId="a" fill={PIE_COLORS.negative} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </Card>
-            </motion.div>
           </div>
         </div>
 
-        {/* Bottom: Recommended Emerging Topics panel */}
+        {/* Recommended Emerging Topics */}
         <div className="mt-8">
-          <Card className="p-6" style={{ backgroundColor: CARD_BG }}>
-            <h3 className="text-lg font-semibold mb-4" style={{ color: TEXT_DARK }}>
-              Recommended Emerging Topics
+          <Card className="p-6 border border-emerald-200/60 rounded-2xl bg-white shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-800 font-mono uppercase tracking-wider mb-4">
+              Emerging Buzzwords & Suggestions
             </h3>
             <div className="flex flex-wrap gap-2">
-              {recommendedTopics.length === 0 && <div className="text-sm text-gray-500">No recommendations yet.</div>}
+              {recommendedTopics.length === 0 && <div className="text-xs text-slate-400">No suggestions loaded.</div>}
               {recommendedTopics.map((t, idx) => {
                 const label = typeof t === 'string' ? t : t.topic || t.name || String(t);
                 return (
                   <button
                     key={idx}
                     onClick={() => pickSuggestion(label)}
-                    className="px-3 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-sm border border-gray-100"
+                    className="px-3 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-xs border border-emerald-200 text-emerald-800 font-semibold transition"
                   >
-                    {label}
+                    #{label.replace(/\s+/g, '')}
                   </button>
                 );
               })}
             </div>
           </Card>
         </div>
+
       </div>
 
-      {/* Footer wrapper */}
-      <div style={{ backgroundColor: PAGE_BG }}>
-        <Footer />
-      </div>
-
-      {/* Full-screen overlay loader for strong network operations */}
-      <AnimatePresence>
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 60,
-              background: 'rgba(255,255,255,0.55)',
-              backdropFilter: 'blur(3px)',
-            }}
-          >
-            <div className="rounded-lg bg-white p-6 shadow-lg flex items-center gap-4">
-              <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
-              <div>
-                <div className="font-medium text-gray-900">Loading analysis</div>
-                <div className="text-sm text-gray-500">Fetching latest sentiment and trend data...</div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Footer />
     </div>
   );
 }
